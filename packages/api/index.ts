@@ -5,5 +5,6 @@ export {
   createTRPCRouter,
   publicProcedure,
   protectedProcedure,
+  orgProtectedProcedure,
 } from "./trpc"
 export type { CreateContextOptions } from "./trpc"

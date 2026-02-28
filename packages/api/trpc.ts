@@ -56,3 +56,25 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   })
 })
+
+export const orgProtectedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const membership = await ctx.prisma.organizationMember.findFirst({
+    where: { userId: ctx.session.user.id },
+    include: { organization: true },
+  })
+
+  if (!membership) {
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "No organization found. Please set up your workspace first.",
+    })
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      organization: membership.organization,
+      membership,
+    },
+  })
+})

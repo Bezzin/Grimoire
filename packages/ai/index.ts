@@ -1,3 +1,7 @@
 export { getOpenRouterClient } from "./client"
 export { getModel, getFallbackModels, getModelId } from "./router"
 export type { ModelTier, RouterOptions } from "./router"
+export { moderateContent } from "./safety/moderation"
+export type { ModerationResult } from "./safety/moderation"
+export { checkBrandGuardrails } from "./safety/guardrails"
+export type { GuardrailResult } from "./safety/guardrails"
