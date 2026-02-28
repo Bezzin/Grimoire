@@ -4,9 +4,11 @@ import Stripe from "stripe"
 import { prisma } from "@grimoire/db"
 import type { Plan } from "@grimoire/db"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
-})
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: "2025-02-24.acacia",
+  })
+}
 
 const PRICE_TO_PLAN: Record<string, Plan> = {
   [process.env.STRIPE_STARTER_MONTHLY_PRICE_ID ?? ""]: "STARTER",
@@ -18,6 +20,7 @@ const PRICE_TO_PLAN: Record<string, Plan> = {
 }
 
 export async function POST(req: Request) {
+  const stripe = getStripe()
   const body = await req.text()
   const headersList = await headers()
   const signature = headersList.get("stripe-signature")

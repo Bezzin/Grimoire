@@ -5,8 +5,8 @@ import { prisma } from "@grimoire/db"
 
 export interface CreateContextOptions {
   session: {
-    user: {
-      id: string
+    user?: {
+      id?: string
       email?: string | null
       name?: string | null
       image?: string | null
@@ -41,12 +41,18 @@ export const createTRPCRouter = t.router
 export const publicProcedure = t.procedure
 
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session?.user) {
+  if (!ctx.session?.user?.id) {
     throw new TRPCError({ code: "UNAUTHORIZED" })
   }
   return next({
     ctx: {
-      session: { ...ctx.session, user: ctx.session.user },
+      session: {
+        ...ctx.session,
+        user: {
+          ...ctx.session.user,
+          id: ctx.session.user.id,
+        },
+      },
     },
   })
 })
