@@ -1,3 +1,3 @@
-// Phase 2: AI Core package — barrel exports
-// Individual modules will be exported as they are built
-export {}
+export { getOpenRouterClient } from "./client"
+export { getModel, getFallbackModels, getModelId } from "./router"
+export type { ModelTier, RouterOptions } from "./router"
