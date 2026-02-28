@@ -1,0 +1,47 @@
+export const PLANS = {
+  FREE: {
+    name: "Free",
+    price: 0,
+    socialAccounts: 1,
+    aiGenerationsPerMonth: 10,
+    scheduling: false,
+    analytics: false,
+    brandVoiceRag: false,
+    teamSeats: 1,
+  },
+  STARTER: {
+    name: "Starter",
+    price: 2900,
+    priceAnnual: 24167,
+    socialAccounts: 5,
+    aiGenerationsPerMonth: 200,
+    scheduling: true,
+    analytics: true,
+    brandVoiceRag: false,
+    teamSeats: 1,
+  },
+  PRO: {
+    name: "Pro",
+    price: 3900,
+    priceAnnual: 32500,
+    socialAccounts: 15,
+    aiGenerationsPerMonth: -1,
+    scheduling: true,
+    analytics: true,
+    brandVoiceRag: true,
+    teamSeats: 1,
+  },
+  TEAM: {
+    name: "Team",
+    price: 7900,
+    priceAnnual: 65833,
+    socialAccounts: 15,
+    aiGenerationsPerMonth: -1,
+    scheduling: true,
+    analytics: true,
+    brandVoiceRag: true,
+    teamSeats: 5,
+  },
+} as const
+
+export type PlanKey = keyof typeof PLANS
