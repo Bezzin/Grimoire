@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ AUTH & USERS ============
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  image          String?
+  emailVerified  DateTime?
+  hashedPassword String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  organizations OrganizationMember[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ============ ORGANIZATIONS & TEAMS ============
+
+model Organization {
+  id               String    @id @default(cuid())
+  name             String
+  slug             String    @unique
+  stripeCustomerId String?   @unique
+  plan             Plan      @default(FREE)
+  planExpiresAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  members         OrganizationMember[]
+  socialAccounts  SocialAccount[]
+  brandProfiles   BrandProfile[]
+  contentItems    ContentItem[]
+  scheduledPosts  ScheduledPost[]
+  analyticsEvents AnalyticsEvent[]
+}
+
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  role           OrgRole  @default(MEMBER)
+  userId         String
+  organizationId String
+  createdAt      DateTime @default(now())
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  TEAM
+}
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// ============ SOCIAL ACCOUNTS ============
+
+model SocialAccount {
+  id               String         @id @default(cuid())
+  platform         SocialPlatform
+  platformUserId   String
+  platformUsername String?
+  displayName      String?
+  avatarUrl        String?
+  accessToken      String         @db.Text
+  refreshToken     String?        @db.Text
+  tokenExpiresAt   DateTime?
+  scopes           String[]
+  isActive         Boolean        @default(true)
+  organizationId   String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  scheduledPosts  ScheduledPost[]
+  analyticsEvents AnalyticsEvent[]
+
+  @@unique([platform, platformUserId, organizationId])
+}
+
+enum SocialPlatform {
+  INSTAGRAM
+  FACEBOOK
+  LINKEDIN
+  TWITTER
+  TIKTOK
+  THREADS
+  YOUTUBE
+  PINTEREST
+}
+
+// ============ BRAND VOICE ============
+
+model BrandProfile {
+  id              String   @id @default(cuid())
+  name            String   @default("Default")
+  description     String?
+  toneKeywords    String[]
+  avoidKeywords   String[]
+  styleGuide      String?  @db.Text
+  exampleContent  String[] @db.Text
+  vectorNamespace String?
+  isDefault       Boolean  @default(false)
+  organizationId  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  contentItems ContentItem[]
+}
+
+// ============ CONTENT ============
+
+model ContentItem {
+  id               String        @id @default(cuid())
+  type             ContentType
+  status           ContentStatus @default(DRAFT)
+  title            String?
+  body             String        @db.Text
+  bodyHtml         String?       @db.Text
+  mediaUrls        String[]
+  hashtags         String[]
+  aiModel          String?
+  aiPromptTemplate String?
+  aiTokensUsed     Int?
+  platformVariants Json?
+  metadata         Json?
+  organizationId   String
+  brandProfileId   String?
+  createdById      String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brandProfile   BrandProfile?   @relation(fields: [brandProfileId], references: [id])
+  scheduledPosts ScheduledPost[]
+
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt])
+}
+
+enum ContentType {
+  SOCIAL_POST
+  BLOG_OUTLINE
+  BLOG_DRAFT
+  EMAIL_COPY
+  AD_COPY
+  THREAD
+  CAROUSEL
+  VIDEO_SCRIPT
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  FAILED
+  ARCHIVED
+}
+
+// ============ SCHEDULING ============
+
+model ScheduledPost {
+  id              String     @id @default(cuid())
+  scheduledFor    DateTime
+  publishedAt     DateTime?
+  status          PostStatus @default(QUEUED)
+  errorMessage    String?
+  platformPostId  String?
+  platformPostUrl String?
+  contentItemId   String
+  socialAccountId String
+  organizationId  String
+  bullJobId       String?
+  retryCount      Int        @default(0)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  contentItem   ContentItem   @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([status, scheduledFor])
+  @@index([organizationId, scheduledFor])
+}
+
+enum PostStatus {
+  QUEUED
+  PROCESSING
+  PUBLISHED
+  FAILED
+  CANCELLED
+}
+
+// ============ ANALYTICS ============
+
+model AnalyticsEvent {
+  id              String         @id @default(cuid())
+  platform        SocialPlatform
+  metricType      String
+  value           Float
+  recordedAt      DateTime
+  socialAccountId String
+  organizationId  String
+  platformPostId  String?
+  metadata        Json?
+  createdAt       DateTime       @default(now())
+
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, platform, recordedAt])
+  @@index([socialAccountId, metricType, recordedAt])
+}
