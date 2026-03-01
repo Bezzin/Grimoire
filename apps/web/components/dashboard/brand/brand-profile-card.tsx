@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Star, Trash2, MoreHorizontal, Sparkles } from "lucide-react"
+import { Star, Trash2, MoreHorizontal, Sparkles, Upload } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,9 +23,10 @@ interface BrandProfileCardProps {
     isDefault: boolean
   }
   onUpdate: () => void
+  onViewAssets: (profileId: string) => void
 }
 
-export function BrandProfileCard({ profile, onUpdate }: BrandProfileCardProps) {
+export function BrandProfileCard({ profile, onUpdate, onViewAssets }: BrandProfileCardProps) {
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<string | null>(null)
 
@@ -115,20 +116,31 @@ export function BrandProfileCard({ profile, onUpdate }: BrandProfileCardProps) {
           <span className="text-xs text-muted-foreground">
             {profile.exampleContent.length} example{profile.exampleContent.length !== 1 ? "s" : ""}
           </span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            disabled={testing || testVoice.isPending}
-            onClick={() => {
-              setTesting(true)
-              setTestResult(null)
-              testVoice.mutate({ profileId: profile.id })
-            }}
-          >
-            <Sparkles className="h-3 w-3" />
-            Test Voice
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => onViewAssets(profile.id)}
+            >
+              <Upload className="h-3 w-3" />
+              Assets
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs"
+              disabled={testing || testVoice.isPending}
+              onClick={() => {
+                setTesting(true)
+                setTestResult(null)
+                testVoice.mutate({ profileId: profile.id })
+              }}
+            >
+              <Sparkles className="h-3 w-3" />
+              Test Voice
+            </Button>
+          </div>
         </div>
         {testResult && (
           <div className="rounded-lg bg-muted/30 p-3 text-sm">{testResult}</div>

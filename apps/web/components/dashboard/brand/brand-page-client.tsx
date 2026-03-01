@@ -6,10 +6,21 @@ import { Button } from "@/components/ui/button"
 import { trpc } from "@/lib/trpc/client"
 import { BrandProfileCard } from "./brand-profile-card"
 import { BrandWizard } from "./brand-wizard"
+import { BrandAssetsPanel } from "./brand-assets-panel"
 
 export function BrandPageClient() {
   const [showWizard, setShowWizard] = useState(false)
+  const [assetProfileId, setAssetProfileId] = useState<string | null>(null)
   const { data: profiles, isLoading, refetch } = trpc.brand.list.useQuery()
+
+  if (assetProfileId) {
+    return (
+      <BrandAssetsPanel
+        profileId={assetProfileId}
+        onClose={() => setAssetProfileId(null)}
+      />
+    )
+  }
 
   if (showWizard) {
     return (
@@ -78,6 +89,7 @@ export function BrandPageClient() {
               key={profile.id}
               profile={profile}
               onUpdate={refetch}
+              onViewAssets={setAssetProfileId}
             />
           ))}
         </div>
