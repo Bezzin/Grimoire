@@ -10,6 +10,8 @@
     "@grimoire/shared": "workspace:*",
     "@trpc/server": "^11.0.0",
     "ai": "^4.0.0",
+    "bullmq": "^5.70.1",
+    "ioredis": "^5.10.0",
     "resend": "^6.9.3",
     "stripe": "^17.0.0",
     "superjson": "^2.2.0",
