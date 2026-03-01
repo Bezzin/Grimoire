@@ -1,8 +1,8 @@
 import { z } from "zod"
 import type { SocialPlatformKey } from "./platforms"
 
-export type TemplateCategory = "social" | "thread" | "blog" | "email" | "ads"
-export type TemplateTier = "fast" | "standard" | "creative"
+export type TemplateCategory = "social" | "thread" | "blog" | "email" | "ads" | "image" | "video"
+export type TemplateTier = "fast" | "standard" | "creative" | "image" | "video"
 
 export interface PromptTemplate {
   id: string
@@ -288,6 +288,184 @@ Write a clear, exciting product update email with:
 - CTA button text
 
 Use markdown formatting. Mark the subject line with "Subject:" and preview with "Preview:".`,
+    platforms: [],
+  },
+  // ── Image Templates ──
+  {
+    id: "image:social-graphic",
+    name: "Social Media Graphic",
+    category: "image",
+    description: "Generate a branded social media graphic from a brief.",
+    icon: "ImagePlus",
+    tier: "image",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("Describe the image you want"),
+      style: z.string().max(200).optional().describe("Visual style (e.g., minimalist, vibrant, corporate)"),
+      aspectRatio: z.enum(["1:1", "16:9", "9:16", "3:2"]).default("1:1").describe("Aspect ratio"),
+    }),
+    systemPrompt: `Generate a professional social media graphic based on this brief.
+
+{{brandContext}}
+
+Brief: {{brief}}
+Style: {{style}}
+Aspect Ratio: {{aspectRatio}}
+
+Create a visually striking, brand-aligned image. Use clean composition, readable text if any, and bold colors.`,
+    platforms: ["INSTAGRAM", "FACEBOOK", "LINKEDIN", "TWITTER"],
+  },
+  {
+    id: "image:product-showcase",
+    name: "Product Showcase",
+    category: "image",
+    description: "Generate a branded product photo with styled background.",
+    icon: "Package",
+    tier: "image",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("Product description and context"),
+      productName: z.string().min(1).max(200).describe("Product name"),
+      style: z.string().max(200).optional().describe("Visual style (e.g., studio, lifestyle, flat-lay)"),
+    }),
+    systemPrompt: `Generate a professional product showcase image.
+
+{{brandContext}}
+
+Product: {{productName}}
+Brief: {{brief}}
+Style: {{style}}
+
+Create a high-quality product image with clean styling and professional presentation.`,
+    platforms: ["INSTAGRAM", "FACEBOOK"],
+  },
+  {
+    id: "image:quote-card",
+    name: "Quote Card",
+    category: "image",
+    description: "Turn a quote or testimonial into a visual card.",
+    icon: "Quote",
+    tier: "image",
+    inputSchema: z.object({
+      brief: z.string().min(5).max(500).describe("The quote text"),
+      attribution: z.string().max(200).optional().describe("Who said it"),
+      style: z.string().max(200).optional().describe("Visual style"),
+    }),
+    systemPrompt: `Generate a beautiful quote card image.
+
+{{brandContext}}
+
+Quote: "{{brief}}"
+Attribution: {{attribution}}
+Style: {{style}}
+
+Design an elegant, readable quote card with typography as the focal point. Keep it clean and shareable.`,
+    platforms: ["INSTAGRAM", "FACEBOOK", "TWITTER", "LINKEDIN"],
+  },
+  {
+    id: "image:story-cover",
+    name: "Story / Reel Cover",
+    category: "image",
+    description: "Generate an Instagram/TikTok story or reel cover image.",
+    icon: "Smartphone",
+    tier: "image",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("What the story/reel is about"),
+      headline: z.string().max(100).optional().describe("Headline text for the cover"),
+    }),
+    systemPrompt: `Generate a vertical story/reel cover image (9:16 aspect ratio).
+
+{{brandContext}}
+
+Brief: {{brief}}
+Headline: {{headline}}
+
+Design an eye-catching vertical cover image that grabs attention in a story or reel thumbnail. Use bold visuals and minimal text.`,
+    platforms: ["INSTAGRAM", "TIKTOK"],
+  },
+  // ── Video Templates ──
+  {
+    id: "video:product-demo",
+    name: "Product Demo Clip",
+    category: "video",
+    description: "Short product showcase video (5-10s).",
+    icon: "Play",
+    tier: "video",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("Describe the product demo scene"),
+      productName: z.string().min(1).max(200).describe("Product name"),
+      duration: z.enum(["5", "10"]).default("5").describe("Duration in seconds"),
+    }),
+    systemPrompt: `Create a short product demo video.
+
+{{brandContext}}
+
+Product: {{productName}}
+Brief: {{brief}}
+Duration: {{duration}} seconds
+
+Generate a professional, cinematic product showcase that highlights the product's key features.`,
+    platforms: [],
+  },
+  {
+    id: "video:social-reel",
+    name: "Social Reel",
+    category: "video",
+    description: "Vertical reel for Instagram/TikTok.",
+    icon: "Film",
+    tier: "video",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("What the reel should show"),
+      style: z.string().max(200).optional().describe("Visual style (e.g., dynamic, calm, energetic)"),
+    }),
+    systemPrompt: `Create a short vertical social media reel.
+
+{{brandContext}}
+
+Brief: {{brief}}
+Style: {{style}}
+
+Generate a visually engaging vertical video for social media. Make it eye-catching within the first second.`,
+    platforms: ["INSTAGRAM", "TIKTOK"],
+  },
+  {
+    id: "video:explainer-clip",
+    name: "Explainer Clip",
+    category: "video",
+    description: "Brief explainer animation (5-10s).",
+    icon: "Clapperboard",
+    tier: "video",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("What concept to explain visually"),
+      duration: z.enum(["5", "10"]).default("5").describe("Duration in seconds"),
+    }),
+    systemPrompt: `Create a short explainer clip.
+
+{{brandContext}}
+
+Brief: {{brief}}
+Duration: {{duration}} seconds
+
+Generate a clear, visually informative animation that explains the concept simply and engagingly.`,
+    platforms: [],
+  },
+  {
+    id: "video:brand-intro",
+    name: "Brand Intro / Outro",
+    category: "video",
+    description: "Brand intro or outro bumper (3-5s).",
+    icon: "Tv",
+    tier: "video",
+    inputSchema: z.object({
+      brief: z.string().min(10).max(2000).describe("Brand elements and mood to feature"),
+      type: z.enum(["intro", "outro"]).default("intro").describe("Intro or outro"),
+    }),
+    systemPrompt: `Create a brand {{type}} bumper video.
+
+{{brandContext}}
+
+Brief: {{brief}}
+Type: {{type}}
+
+Generate a polished, cinematic brand bumper that feels professional and memorable. Keep it 3-5 seconds.`,
     platforms: [],
   },
 ]
