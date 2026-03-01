@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   PenSquare,
@@ -17,6 +17,11 @@ import {
   Sparkles,
   X,
   Lock,
+  ChevronsUpDown,
+  Check,
+  Plus,
+  Loader2,
+  Building2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import {
@@ -27,6 +32,16 @@ import {
 } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { trpc } from "@/lib/trpc/client"
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, disabled: false, phase: null },
@@ -39,6 +54,12 @@ const navItems = [
   { title: "Settings", href: "/dashboard/settings", icon: Settings, disabled: false, phase: null },
 ] as const
 
+const PLAN_STYLES: Record<string, string> = {
+  FREE: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+  PRO: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  AGENCY: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
+}
+
 interface SidebarProps {
   user: {
     name?: string | null
@@ -47,11 +68,13 @@ interface SidebarProps {
   }
   open: boolean
   onClose: () => void
+  activeOrgId: string | null
 }
 
-export function Sidebar({ user, open, onClose }: SidebarProps) {
+export function Sidebar({ user, open, onClose, activeOrgId }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
 
   const initials =
     user.name
@@ -80,35 +103,18 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
           open ? "w-[260px] translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        {/* Branding */}
-        <div className="flex h-16 items-center border-b border-sidebar-border px-4">
-          <Link
-            href="/dashboard"
-            className={cn(
-              "group flex items-center gap-2.5",
-              collapsed && "md:justify-center"
-            )}
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg grimoire-gradient shadow-glow-sm">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            {!collapsed && (
-              <span className="text-lg font-bold tracking-tight md:block">
-                Grimoire
-              </span>
-            )}
-            {collapsed && (
-              <span className="text-lg font-bold tracking-tight md:hidden">
-                Grimoire
-              </span>
-            )}
-          </Link>
+        {/* Client Switcher */}
+        <div className="flex h-16 items-center border-b border-sidebar-border px-3">
+          <ClientSwitcher
+            activeOrgId={activeOrgId}
+            collapsed={collapsed}
+          />
 
           {/* Mobile close */}
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto md:hidden"
+            className="ml-auto shrink-0 md:hidden"
             onClick={onClose}
             aria-label="Close sidebar"
           >
@@ -195,6 +201,33 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
           })}
         </nav>
 
+        {/* Grimoire branding (small) */}
+        <div
+          className={cn(
+            "flex items-center gap-2 border-t border-sidebar-border px-4 py-2",
+            collapsed && "md:justify-center md:px-2"
+          )}
+        >
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2"
+          >
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded grimoire-gradient">
+              <Sparkles className="h-3 w-3 text-white" />
+            </div>
+            {!collapsed && (
+              <span className="text-xs font-medium text-sidebar-muted md:block">
+                Grimoire
+              </span>
+            )}
+            {collapsed && (
+              <span className="text-xs font-medium text-sidebar-muted md:hidden">
+                Grimoire
+              </span>
+            )}
+          </Link>
+        </div>
+
         {/* User section */}
         <div className="border-t border-sidebar-border p-3">
           <div
@@ -250,5 +283,208 @@ export function Sidebar({ user, open, onClose }: SidebarProps) {
         </div>
       </aside>
     </TooltipProvider>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Client Workspace Switcher                                         */
+/* ------------------------------------------------------------------ */
+
+interface ClientSwitcherProps {
+  activeOrgId: string | null
+  collapsed: boolean
+}
+
+function ClientSwitcher({ activeOrgId, collapsed }: ClientSwitcherProps) {
+  const router = useRouter()
+  const { data: orgs } = trpc.user.listOrganizations.useQuery()
+  const utils = trpc.useUtils()
+
+  const [showNewDialog, setShowNewDialog] = useState(false)
+  const [newOrgName, setNewOrgName] = useState("")
+  const [switching, setSwitching] = useState(false)
+
+  const createOrg = trpc.user.createOrganization.useMutation({
+    onSuccess: async (data) => {
+      utils.user.listOrganizations.invalidate()
+      setNewOrgName("")
+      setShowNewDialog(false)
+      await switchToOrg(data.id)
+    },
+  })
+
+  const activeOrg = orgs?.find((o) => o.id === activeOrgId) ?? orgs?.[0]
+
+  async function switchToOrg(orgId: string) {
+    if (orgId === activeOrgId) return
+    setSwitching(true)
+    try {
+      await fetch("/api/org/switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ organizationId: orgId }),
+      })
+      router.refresh()
+    } catch {
+      // Switch failed silently; user can retry
+    } finally {
+      setSwitching(false)
+    }
+  }
+
+  function handleCreateOrg() {
+    const trimmed = newOrgName.trim()
+    if (trimmed.length === 0) return
+    createOrg.mutate({ name: trimmed })
+  }
+
+  // Collapsed state: show icon only with tooltip
+  if (collapsed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10"
+            aria-label={activeOrg?.name ?? "Select workspace"}
+          >
+            <Building2 className="h-4 w-4 text-primary" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          <p>{activeOrg?.name ?? "Select workspace"}</p>
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  // New client dialog overlay
+  if (showNewDialog) {
+    return (
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <p className="text-xs font-semibold text-sidebar-foreground">
+          New Client
+        </p>
+        <div className="space-y-2">
+          <Label htmlFor="new-org-name" className="sr-only">
+            Client name
+          </Label>
+          <Input
+            id="new-org-name"
+            value={newOrgName}
+            onChange={(e) => setNewOrgName(e.target.value)}
+            placeholder="Client name"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCreateOrg()
+              if (e.key === "Escape") {
+                setShowNewDialog(false)
+                setNewOrgName("")
+              }
+            }}
+          />
+          <div className="flex gap-1.5">
+            <Button
+              size="sm"
+              className="h-7 flex-1 text-xs"
+              onClick={handleCreateOrg}
+              disabled={createOrg.isPending || newOrgName.trim().length === 0}
+            >
+              {createOrg.isPending ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                "Create"
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-xs"
+              onClick={() => {
+                setShowNewDialog(false)
+                setNewOrgName("")
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            "flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-1 py-1.5 text-left transition-colors hover:bg-sidebar-accent/8",
+            switching && "pointer-events-none opacity-60"
+          )}
+          aria-label="Switch workspace"
+        >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <Building2 className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-sm font-semibold leading-tight">
+              {activeOrg?.name ?? "Select workspace"}
+            </span>
+            {activeOrg?.plan && (
+              <span
+                className={cn(
+                  "mt-0.5 inline-flex w-fit items-center rounded-full px-1.5 py-0 text-[10px] font-medium leading-relaxed",
+                  PLAN_STYLES[activeOrg.plan] ?? PLAN_STYLES.FREE
+                )}
+              >
+                {activeOrg.plan}
+              </span>
+            )}
+          </div>
+          {switching ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-sidebar-muted" />
+          ) : (
+            <ChevronsUpDown className="h-4 w-4 shrink-0 text-sidebar-muted" />
+          )}
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="start" className="w-[228px]">
+        {orgs?.map((org) => (
+          <DropdownMenuItem
+            key={org.id}
+            className="flex cursor-pointer items-center gap-2"
+            onSelect={() => switchToOrg(org.id)}
+          >
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-primary/10">
+              <Building2 className="h-3 w-3 text-primary" />
+            </div>
+            <span className="flex-1 truncate text-sm">{org.name}</span>
+            {org.plan && (
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-1.5 py-0 text-[10px] font-medium",
+                  PLAN_STYLES[org.plan] ?? PLAN_STYLES.FREE
+                )}
+              >
+                {org.plan}
+              </span>
+            )}
+            {org.id === activeOrgId && (
+              <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+            )}
+          </DropdownMenuItem>
+        ))}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          className="flex cursor-pointer items-center gap-2 text-sm"
+          onSelect={() => setShowNewDialog(true)}
+        >
+          <Plus className="h-4 w-4" />
+          <span>Add New Client</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { DashboardShell } from "@/components/shared/dashboard-shell"
 import { api } from "@/lib/trpc/server"
+import { getActiveOrgId } from "@/lib/org-context"
 
 export default async function DashboardLayout({
   children,
@@ -18,5 +19,11 @@ export default async function DashboardLayout({
   const caller = await api()
   await caller.user.ensureOrganization()
 
-  return <DashboardShell user={session.user}>{children}</DashboardShell>
+  const activeOrgId = await getActiveOrgId()
+
+  return (
+    <DashboardShell user={session.user} activeOrgId={activeOrgId}>
+      {children}
+    </DashboardShell>
+  )
 }

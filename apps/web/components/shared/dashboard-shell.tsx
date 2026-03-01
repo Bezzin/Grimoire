@@ -11,10 +11,11 @@ interface DashboardShellProps {
     email?: string | null
     image?: string | null
   }
+  activeOrgId: string | null
   children: React.ReactNode
 }
 
-export function DashboardShell({ user, children }: DashboardShellProps) {
+export function DashboardShell({ user, activeOrgId, children }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
@@ -24,6 +25,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
           user={user}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          activeOrgId={activeOrgId}
         />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header
