@@ -66,7 +66,7 @@ export function TemplatePicker({ selected, onSelect }: TemplatePickerProps) {
       {/* Template list */}
       <div className="flex-1 overflow-y-auto p-2">
         {filtered.map((template) => {
-          const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[template.icon]
+          const IconComponent = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[template.icon]
           return (
             <button
               key={template.id}
