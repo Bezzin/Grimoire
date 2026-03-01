@@ -11,9 +11,10 @@ import type { PromptTemplate } from "@grimoire/shared"
 interface GenerationPanelProps {
   template: PromptTemplate
   onGenerated: (data: { contentItemId: string; systemPrompt: string; modelId: string }) => void
+  customInputFields?: Array<{ key: string; label: string; type: string; required: boolean; placeholder?: string }>
 }
 
-export function GenerationPanel({ template, onGenerated }: GenerationPanelProps) {
+export function GenerationPanel({ template, onGenerated, customInputFields }: GenerationPanelProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [inputs, setInputs] = useState<Record<string, string>>({})
 
@@ -23,12 +24,21 @@ export function GenerationPanel({ template, onGenerated }: GenerationPanelProps)
     onSuccess: (data) => onGenerated(data),
   })
 
-  const inputFields = Object.entries(template.inputSchema.shape).map(
-    ([key, schema]) => ({
-      key,
-      label: (schema as { description?: string }).description ?? key,
-    })
-  )
+  const inputFields = customInputFields
+    ? customInputFields.map((f) => ({
+        key: f.key,
+        label: f.label,
+        type: f.type,
+        placeholder: f.placeholder,
+      }))
+    : Object.entries(template.inputSchema.shape).map(
+        ([key, schema]) => ({
+          key,
+          label: (schema as { description?: string }).description ?? key,
+          type: key === "brief" || key === "outline" || key === "testimonial" || key === "changes" ? "textarea" : "text",
+          placeholder: undefined as string | undefined,
+        })
+      )
 
   function handleGenerate() {
     generate.mutate({
@@ -53,10 +63,10 @@ export function GenerationPanel({ template, onGenerated }: GenerationPanelProps)
 
       {!collapsed && (
         <div className="space-y-3 px-4 pb-4">
-          {inputFields.map(({ key, label }) => (
+          {inputFields.map(({ key, label, type, placeholder }) => (
             <div key={key} className="space-y-1">
               <Label className="text-xs font-medium">{label}</Label>
-              {key === "brief" || key === "outline" || key === "testimonial" || key === "changes" ? (
+              {type === "textarea" ? (
                 <textarea
                   value={inputs[key] ?? ""}
                   onChange={(e) =>
@@ -64,7 +74,17 @@ export function GenerationPanel({ template, onGenerated }: GenerationPanelProps)
                   }
                   rows={3}
                   className="w-full rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  placeholder={label}
+                  placeholder={placeholder ?? label}
+                />
+              ) : type === "number" ? (
+                <Input
+                  type="number"
+                  value={inputs[key] ?? ""}
+                  onChange={(e) =>
+                    setInputs((prev) => ({ ...prev, [key]: e.target.value }))
+                  }
+                  className="h-9 text-sm"
+                  placeholder={placeholder ?? label}
                 />
               ) : (
                 <Input
@@ -73,7 +93,7 @@ export function GenerationPanel({ template, onGenerated }: GenerationPanelProps)
                     setInputs((prev) => ({ ...prev, [key]: e.target.value }))
                   }
                   className="h-9 text-sm"
-                  placeholder={label}
+                  placeholder={placeholder ?? label}
                 />
               )}
             </div>
