@@ -3,6 +3,9 @@ import { TRPCError } from "@trpc/server"
 import { createTRPCRouter, orgProtectedProcedure } from "../trpc"
 import { PLANS } from "@grimoire/shared"
 import type { PlanKey } from "@grimoire/shared"
+import { scrapePosts, analyzeVoice } from "@grimoire/ai"
+import { SOCIAL_OAUTH_CONFIG } from "@grimoire/shared"
+import type { SocialOAuthPlatform } from "@grimoire/shared"
 
 const platformEnum = z.enum([
   "INSTAGRAM",
@@ -117,4 +120,59 @@ export const socialAccountRouter = createTRPCRouter({
       limit: planConfig.socialAccounts,
     }
   }),
+
+  scrapeAndGenerateProfile: orgProtectedProcedure
+    .input(z.object({ accountId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const account = await ctx.prisma.socialAccount.findFirst({
+        where: { id: input.accountId, organizationId: ctx.organization.id },
+      })
+      if (!account) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Account not found" })
+      }
+      if (!account.isActive) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Account is inactive" })
+      }
+
+      // Scrape posts
+      const posts = await scrapePosts(account.platform, account.accessToken, 50)
+      if (posts.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No posts found to analyze. The account may be private or have no content.",
+        })
+      }
+
+      // Analyze voice
+      const platformName = SOCIAL_OAUTH_CONFIG[account.platform as SocialOAuthPlatform]?.name ?? account.platform
+      const analysis = await analyzeVoice(posts, platformName)
+
+      // Create brand profile
+      const profile = await ctx.prisma.brandProfile.create({
+        data: {
+          name: `${platformName} Voice — Auto-generated`,
+          description: `Automatically generated from ${posts.length} ${platformName} posts.`,
+          toneKeywords: analysis.toneKeywords,
+          avoidKeywords: analysis.avoidKeywords,
+          styleGuide: analysis.styleGuide,
+          exampleContent: analysis.exampleContent,
+          organizationId: ctx.organization.id,
+          vectorNamespace: "",
+        },
+      })
+
+      // Update vectorNamespace
+      await ctx.prisma.brandProfile.update({
+        where: { id: profile.id },
+        data: { vectorNamespace: `org:${ctx.organization.id}:brand:${profile.id}` },
+      })
+
+      // Count as 1 AI generation
+      await ctx.prisma.organization.update({
+        where: { id: ctx.organization.id },
+        data: { aiGenerationsUsed: { increment: 1 } },
+      })
+
+      return { profileId: profile.id, postsAnalyzed: posts.length, toneKeywords: analysis.toneKeywords }
+    }),
 })
