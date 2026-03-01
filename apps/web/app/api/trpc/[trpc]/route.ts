@@ -5,11 +5,17 @@ import { auth } from "@/lib/auth"
 const handler = async (req: Request) => {
   const session = await auth()
 
+  const cookieHeader = req.headers.get("cookie") ?? ""
+  const orgCookie = cookieHeader
+    .split(";")
+    .find((c) => c.trim().startsWith("grimoire-org-id="))
+  const activeOrgId = orgCookie?.split("=")[1]?.trim() ?? null
+
   return fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
     router: appRouter,
-    createContext: () => createTRPCContext({ session }),
+    createContext: () => createTRPCContext({ session, activeOrgId }),
   })
 }
 

@@ -12,12 +12,14 @@ export interface CreateContextOptions {
       image?: string | null
     }
   } | null
+  activeOrgId?: string | null
 }
 
 export const createTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
+    activeOrgId: opts.activeOrgId ?? null,
   }
 }
 
@@ -58,10 +60,17 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 })
 
 export const orgProtectedProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  const membership = await ctx.prisma.organizationMember.findFirst({
-    where: { userId: ctx.session.user.id },
-    include: { organization: true },
-  })
+  const activeOrgId = ctx.activeOrgId ?? null
+
+  const membership = activeOrgId
+    ? await ctx.prisma.organizationMember.findFirst({
+        where: { userId: ctx.session.user.id, organizationId: activeOrgId },
+        include: { organization: true },
+      })
+    : await ctx.prisma.organizationMember.findFirst({
+        where: { userId: ctx.session.user.id },
+        include: { organization: true },
+      })
 
   if (!membership) {
     throw new TRPCError({
