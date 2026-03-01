@@ -8,6 +8,8 @@ export const PLANS = {
     analytics: false,
     brandVoiceRag: false,
     teamSeats: 1,
+    brandAssets: 5,
+    customTemplates: 3,
   },
   STARTER: {
     name: "Starter",
@@ -19,6 +21,8 @@ export const PLANS = {
     analytics: true,
     brandVoiceRag: false,
     teamSeats: 1,
+    brandAssets: 50,
+    customTemplates: 20,
   },
   PRO: {
     name: "Pro",
@@ -30,6 +34,8 @@ export const PLANS = {
     analytics: true,
     brandVoiceRag: true,
     teamSeats: 1,
+    brandAssets: -1,
+    customTemplates: -1,
   },
   TEAM: {
     name: "Team",
@@ -41,6 +47,8 @@ export const PLANS = {
     analytics: true,
     brandVoiceRag: true,
     teamSeats: 5,
+    brandAssets: -1,
+    customTemplates: -1,
   },
 } as const
 
