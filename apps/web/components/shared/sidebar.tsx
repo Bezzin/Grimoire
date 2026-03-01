@@ -46,9 +46,9 @@ import { trpc } from "@/lib/trpc/client"
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard, disabled: false, phase: null },
   { title: "Create", href: "/dashboard/create", icon: PenSquare, disabled: false, phase: null },
-  { title: "Calendar", href: "/dashboard/calendar", icon: Calendar, disabled: true, phase: 3 },
-  { title: "Queue", href: "/dashboard/queue", icon: ListChecks, disabled: true, phase: 3 },
-  { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3, disabled: true, phase: 4 },
+  { title: "Calendar", href: "/dashboard/calendar", icon: Calendar, disabled: false, phase: null },
+  { title: "Queue", href: "/dashboard/queue", icon: ListChecks, disabled: false, phase: null },
+  { title: "Analytics", href: "/dashboard/analytics", icon: BarChart3, disabled: false, phase: null },
   { title: "Brand", href: "/dashboard/brand", icon: Palette, disabled: false, phase: null },
   { title: "Accounts", href: "/dashboard/accounts", icon: Users, disabled: false, phase: null },
   { title: "Settings", href: "/dashboard/settings", icon: Settings, disabled: false, phase: null },
