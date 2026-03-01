@@ -8,6 +8,7 @@ import { PLATFORM_DOT_COLORS } from "@/lib/platform-colors"
 import { SOCIAL_PLATFORMS } from "@grimoire/shared"
 import type { SocialPlatformKey } from "@grimoire/shared"
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { PostDetailPanel } from "@/components/dashboard/calendar/post-detail-panel"
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -268,9 +269,6 @@ export default function CalendarPage() {
   const [selectedPost, setSelectedPost] = useState<CalendarPost | null>(null)
   const [dragOverDate, setDragOverDate] = useState<string | null>(null)
 
-  // Suppress unused warning — selectedPost will be used by Task 4 (detail panel)
-  void selectedPost
-
   /* ---- Grid bounds ---- */
   const startOfGrid = useMemo(
     () =>
@@ -529,6 +527,15 @@ export default function CalendarPage() {
         <div className="flex flex-1 items-center justify-center text-muted-foreground">
           Week view coming soon.
         </div>
+      )}
+
+      {/* Post detail side panel */}
+      {selectedPost && (
+        <PostDetailPanel
+          post={selectedPost}
+          onClose={() => setSelectedPost(null)}
+          onUpdated={() => refetch()}
+        />
       )}
     </div>
   )
