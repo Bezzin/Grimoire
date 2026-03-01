@@ -1,4 +1,5 @@
 import { createTRPCRouter } from "./trpc"
+import { analyticsRouter } from "./routers/analytics"
 import { userRouter } from "./routers/user"
 import { billingRouter } from "./routers/billing"
 import { brandRouter } from "./routers/brand"
@@ -10,6 +11,7 @@ import { scheduledPostRouter } from "./routers/scheduledPost"
 import { socialAccountRouter } from "./routers/socialAccount"
 
 export const appRouter = createTRPCRouter({
+  analytics: analyticsRouter,
   user: userRouter,
   billing: billingRouter,
   brand: brandRouter,
