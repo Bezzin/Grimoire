@@ -7,9 +7,9 @@ export default async function DashboardPage() {
   const session = await auth()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 stagger-children">
       <WelcomeCard userName={session?.user?.name ?? "there"} />
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <GettingStarted />
         <AccountsStatus />
       </div>

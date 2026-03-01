@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -49,12 +53,42 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           accent: "hsl(var(--sidebar-accent))",
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          muted: "hsl(var(--sidebar-muted))",
+        },
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
         },
       },
       borderRadius: {
+        xl: "calc(var(--radius) + 4px)",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "glow-sm": "0 0 12px -3px hsl(var(--primary) / 0.25)",
+        "glow-md": "0 0 20px -4px hsl(var(--primary) / 0.35)",
+        "glow-lg": "0 0 32px -6px hsl(var(--primary) / 0.45)",
+        "soft": "0 2px 8px -2px hsl(var(--foreground) / 0.06), 0 1px 2px -1px hsl(var(--foreground) / 0.04)",
+        "elevated": "0 8px 24px -6px hsl(var(--foreground) / 0.1), 0 2px 6px -2px hsl(var(--foreground) / 0.05)",
+      },
+      keyframes: {
+        "shimmer": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+      },
+      animation: {
+        "shimmer": "shimmer 2s infinite",
+        "float": "float 3s ease-in-out infinite",
       },
     },
   },

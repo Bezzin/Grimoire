@@ -19,7 +19,7 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
 
   return (
     <TRPCProvider>
-      <div className="flex h-screen overflow-hidden">
+      <div className="flex h-screen overflow-hidden bg-background">
         <Sidebar
           user={user}
           open={sidebarOpen}
@@ -30,7 +30,11 @@ export function DashboardShell({ user, children }: DashboardShellProps) {
             user={user}
             onMenuToggle={() => setSidebarOpen((prev) => !prev)}
           />
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+          <main className="flex-1 overflow-y-auto">
+            <div className="mx-auto max-w-6xl px-6 py-8">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </TRPCProvider>

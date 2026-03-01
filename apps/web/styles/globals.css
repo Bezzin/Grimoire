@@ -4,58 +4,85 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    /* Light — warm off-white canvas with indigo accents */
+    --background: 240 20% 98%;
+    --foreground: 232 33% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 232 33% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
-    --sidebar: 0 0% 98%;
-    --sidebar-foreground: 0 0% 3.9%;
-    --sidebar-border: 0 0% 89.8%;
-    --sidebar-accent: 0 0% 96.1%;
-    --sidebar-accent-foreground: 0 0% 9%;
+    --popover-foreground: 232 33% 13%;
+    --primary: 245 58% 51%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 14% 94%;
+    --secondary-foreground: 232 33% 13%;
+    --muted: 240 14% 94%;
+    --muted-foreground: 232 10% 47%;
+    --accent: 36 96% 52%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 12% 91%;
+    --input: 240 12% 91%;
+    --ring: 245 58% 51%;
+    --radius: 0.75rem;
+    --chart-1: 245 58% 51%;
+    --chart-2: 36 96% 52%;
+    --chart-3: 167 70% 43%;
+    --chart-4: 340 75% 55%;
+    --chart-5: 200 95% 50%;
+
+    /* Sidebar — subtle indigo tint */
+    --sidebar: 245 25% 97%;
+    --sidebar-foreground: 232 33% 13%;
+    --sidebar-border: 240 12% 91%;
+    --sidebar-accent: 245 58% 51%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-muted: 232 10% 47%;
+
+    /* Grimoire brand gradient stops */
+    --gradient-start: 245 58% 51%;
+    --gradient-mid: 275 60% 50%;
+    --gradient-end: 310 60% 50%;
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --sidebar: 0 0% 5.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 14.9%;
-    --sidebar-accent: 0 0% 14.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
+    /* Dark — deep charcoal/slate canvas */
+    --background: 228 25% 8%;
+    --foreground: 226 15% 92%;
+    --card: 228 22% 11%;
+    --card-foreground: 226 15% 92%;
+    --popover: 228 22% 11%;
+    --popover-foreground: 226 15% 92%;
+    --primary: 245 70% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 228 18% 16%;
+    --secondary-foreground: 226 15% 92%;
+    --muted: 228 18% 16%;
+    --muted-foreground: 226 10% 55%;
+    --accent: 36 96% 58%;
+    --accent-foreground: 228 25% 8%;
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 228 15% 18%;
+    --input: 228 15% 18%;
+    --ring: 245 70% 65%;
+    --chart-1: 245 70% 65%;
+    --chart-2: 36 96% 58%;
+    --chart-3: 167 70% 50%;
+    --chart-4: 340 75% 60%;
+    --chart-5: 200 95% 55%;
+
+    /* Sidebar — slightly lighter dark panel */
+    --sidebar: 228 22% 10%;
+    --sidebar-foreground: 226 15% 85%;
+    --sidebar-border: 228 15% 18%;
+    --sidebar-accent: 245 70% 65%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-muted: 226 10% 50%;
+
+    --gradient-start: 245 70% 65%;
+    --gradient-mid: 275 65% 58%;
+    --gradient-end: 310 65% 55%;
   }
 }
 
@@ -65,5 +92,164 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Smooth scrollbar for dark mode */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer utilities {
+  /* Grimoire brand gradient */
+  .grimoire-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-start)),
+      hsl(var(--gradient-mid)),
+      hsl(var(--gradient-end))
+    );
+  }
+
+  .grimoire-gradient-text {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-start)),
+      hsl(var(--gradient-mid)),
+      hsl(var(--gradient-end))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glass effect for cards */
+  .glass {
+    background: hsl(var(--card) / 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  .glass-strong {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+  }
+
+  /* Subtle glow for interactive elements */
+  .glow-primary {
+    box-shadow: 0 0 20px -4px hsl(var(--primary) / 0.35);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px -4px hsl(var(--accent) / 0.35);
+  }
+
+  /* Noise texture overlay */
+  .noise {
+    position: relative;
+  }
+  .noise::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+  }
+
+  /* Dot grid pattern */
+  .dot-grid {
+    background-image: radial-gradient(
+      circle,
+      hsl(var(--muted-foreground) / 0.12) 1px,
+      transparent 1px
+    );
+    background-size: 24px 24px;
+  }
+
+  /* Animated gradient border */
+  .gradient-border {
+    position: relative;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-start)),
+      hsl(var(--gradient-mid)),
+      hsl(var(--gradient-end)),
+      hsl(var(--gradient-start))
+    );
+    background-size: 300% 300%;
+    animation: gradient-shift 6s ease infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: 0;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Fade in up animation */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Staggered children animation */
+  .stagger-children > * {
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+  .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+  .stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
+
+  /* Pulse glow for CTAs */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 16px -4px hsl(var(--primary) / 0.3); }
+    50% { box-shadow: 0 0 24px -2px hsl(var(--primary) / 0.5); }
   }
 }
