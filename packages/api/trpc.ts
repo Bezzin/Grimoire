@@ -87,3 +87,26 @@ export const orgProtectedProcedure = protectedProcedure.use(async ({ ctx, next }
     },
   })
 })
+
+const ROLE_HIERARCHY: Record<string, number> = {
+  VIEWER: 0,
+  MEMBER: 1,
+  ADMIN: 2,
+  OWNER: 3,
+}
+
+export function roleProtectedProcedure(minimumRole: "VIEWER" | "MEMBER" | "ADMIN" | "OWNER") {
+  return orgProtectedProcedure.use(async ({ ctx, next }) => {
+    const userRoleLevel = ROLE_HIERARCHY[ctx.membership.role] ?? 0
+    const requiredLevel = ROLE_HIERARCHY[minimumRole] ?? 0
+
+    if (userRoleLevel < requiredLevel) {
+      throw new TRPCError({
+        code: "FORBIDDEN",
+        message: `This action requires ${minimumRole} role or higher.`,
+      })
+    }
+
+    return next({ ctx })
+  })
+}
