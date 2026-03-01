@@ -13,23 +13,13 @@ import { trpc } from "@/lib/trpc/client"
 import { SOCIAL_PLATFORMS } from "@grimoire/shared"
 import type { SocialPlatformKey } from "@grimoire/shared"
 import { cn } from "@/lib/utils"
+import { PLATFORM_COLORS } from "@/lib/platform-colors"
 
 interface ScheduleModalProps {
   open: boolean
   onClose: () => void
   contentItemId: string
   mode: "schedule" | "publish-now"
-}
-
-const PLATFORM_COLORS: Record<string, string> = {
-  INSTAGRAM: "bg-gradient-to-br from-purple-500 to-pink-500",
-  FACEBOOK: "bg-blue-600",
-  TWITTER: "bg-black",
-  LINKEDIN: "bg-blue-700",
-  TIKTOK: "bg-black",
-  THREADS: "bg-black",
-  YOUTUBE: "bg-red-600",
-  PINTEREST: "bg-red-500",
 }
 
 export function ScheduleModal({ open, onClose, contentItemId, mode }: ScheduleModalProps) {

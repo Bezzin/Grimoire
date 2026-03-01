@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { SOCIAL_PLATFORMS } from "@grimoire/shared"
 import type { SocialPlatformKey } from "@grimoire/shared"
 import { cn } from "@/lib/utils"
+import { PLATFORM_COLORS } from "@/lib/platform-colors"
 import {
   Clock,
   CheckCircle2,
@@ -30,17 +31,6 @@ const TABS: { label: string; value: TabStatus; icon: React.ReactNode }[] = [
   },
   { label: "Failed", value: "FAILED", icon: <XCircle className="h-4 w-4" /> },
 ]
-
-const PLATFORM_COLORS: Record<string, string> = {
-  INSTAGRAM: "bg-gradient-to-br from-purple-500 to-pink-500",
-  FACEBOOK: "bg-blue-600",
-  TWITTER: "bg-black",
-  LINKEDIN: "bg-blue-700",
-  TIKTOK: "bg-black",
-  THREADS: "bg-black",
-  YOUTUBE: "bg-red-600",
-  PINTEREST: "bg-red-500",
-}
 
 function formatRelativeTime(date: Date): string {
   const now = new Date()
