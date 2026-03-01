@@ -263,4 +263,148 @@ export const contentRouter = createTRPCRouter({
       resetAt: ctx.organization.aiGenerationsResetAt,
     }
   }),
+
+  generateImage: orgProtectedProcedure
+    .input(
+      z.object({
+        templateId: z.string(),
+        inputs: z.record(z.string()),
+        brandProfileId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await checkAiRateLimit(ctx)
+
+      const template = getTemplateById(input.templateId)
+      if (!template) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid template ID" })
+      }
+
+      let brandContextStr = ""
+      const brandProfileId = input.brandProfileId
+      if (brandProfileId) {
+        const profile = await ctx.prisma.brandProfile.findFirst({
+          where: { id: brandProfileId, organizationId: ctx.organization.id },
+        })
+        if (profile) {
+          brandContextStr = `Brand Voice Context:\n- Tone: ${profile.toneKeywords.join(", ")}\n- Avoid: ${profile.avoidKeywords.join(", ")}`
+        }
+      }
+
+      let systemPrompt = template.systemPrompt.replace("{{brandContext}}", brandContextStr)
+      for (const [key, value] of Object.entries(input.inputs)) {
+        systemPrompt = systemPrompt.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), String(value ?? ""))
+      }
+      systemPrompt = systemPrompt.replace(/\{\{[^}]+\}\}/g, "")
+
+      const contentItem = await ctx.prisma.contentItem.create({
+        data: {
+          type: "IMAGE",
+          status: "DRAFT",
+          body: "",
+          aiModel: "google/gemini-3.1-flash-image-preview",
+          aiPromptTemplate: template.id,
+          organizationId: ctx.organization.id,
+          brandProfileId: brandProfileId ?? null,
+          createdById: ctx.session.user.id,
+        },
+      })
+
+      await incrementAiUsage(ctx.prisma, ctx.organization.id)
+
+      return {
+        contentItemId: contentItem.id,
+        systemPrompt,
+        aspectRatio: (input.inputs.aspectRatio as string) ?? "1:1",
+      }
+    }),
+
+  generateVideo: orgProtectedProcedure
+    .input(
+      z.object({
+        templateId: z.string(),
+        inputs: z.record(z.string()),
+        brandProfileId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const planConfig = PLANS[ctx.organization.plan as PlanKey]
+      if (!planConfig.videoGeneration) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Video generation requires a Starter plan or higher. Upgrade to create videos.",
+        })
+      }
+
+      await checkAiRateLimit(ctx)
+
+      const template = getTemplateById(input.templateId)
+      if (!template) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid template ID" })
+      }
+
+      let brandContextStr = ""
+      const brandProfileId = input.brandProfileId
+      if (brandProfileId) {
+        const profile = await ctx.prisma.brandProfile.findFirst({
+          where: { id: brandProfileId, organizationId: ctx.organization.id },
+        })
+        if (profile) {
+          brandContextStr = `Brand Voice Context:\n- Tone: ${profile.toneKeywords.join(", ")}\n- Avoid: ${profile.avoidKeywords.join(", ")}`
+        }
+      }
+
+      let systemPrompt = template.systemPrompt.replace("{{brandContext}}", brandContextStr)
+      for (const [key, value] of Object.entries(input.inputs)) {
+        systemPrompt = systemPrompt.replace(new RegExp(`\\{\\{${key}\\}\\}`, "g"), String(value ?? ""))
+      }
+      systemPrompt = systemPrompt.replace(/\{\{[^}]+\}\}/g, "")
+
+      const contentItem = await ctx.prisma.contentItem.create({
+        data: {
+          type: "VIDEO",
+          status: "DRAFT",
+          body: "",
+          aiModel: "bytedance/seedance-1.5-pro",
+          aiPromptTemplate: template.id,
+          organizationId: ctx.organization.id,
+          brandProfileId: brandProfileId ?? null,
+          createdById: ctx.session.user.id,
+        },
+      })
+
+      await incrementAiUsage(ctx.prisma, ctx.organization.id, 3)
+
+      return {
+        contentItemId: contentItem.id,
+        systemPrompt,
+        duration: input.inputs.duration ? parseInt(input.inputs.duration, 10) : 5,
+        aspectRatio: (input.inputs.aspectRatio as string) ?? "16:9",
+      }
+    }),
+
+  saveMediaUrl: orgProtectedProcedure
+    .input(
+      z.object({
+        contentItemId: z.string(),
+        mediaUrl: z.string().url(),
+        generationJobId: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const item = await ctx.prisma.contentItem.findFirst({
+        where: { id: input.contentItemId, organizationId: ctx.organization.id },
+      })
+      if (!item) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Content item not found" })
+      }
+
+      return ctx.prisma.contentItem.update({
+        where: { id: input.contentItemId },
+        data: {
+          mediaUrls: [input.mediaUrl],
+          ...(input.generationJobId ? { generationJobId: input.generationJobId } : {}),
+        },
+      })
+    }),
 })

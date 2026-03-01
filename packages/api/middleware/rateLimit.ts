@@ -62,12 +62,13 @@ export async function checkAiRateLimit(ctx: RateLimitContext) {
 
 export async function incrementAiUsage(
   prisma: PrismaClient,
-  organizationId: string
+  organizationId: string,
+  credits: number = 1
 ) {
   await prisma.organization.update({
     where: { id: organizationId },
     data: {
-      aiGenerationsUsed: { increment: 1 },
+      aiGenerationsUsed: { increment: credits },
     },
   })
 }
