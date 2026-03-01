@@ -6,6 +6,7 @@ import { brandAssetRouter } from "./routers/brandAsset"
 import { contentRouter } from "./routers/content"
 import { customTemplateRouter } from "./routers/customTemplate"
 import { invitationRouter } from "./routers/invitation"
+import { scheduledPostRouter } from "./routers/scheduledPost"
 import { socialAccountRouter } from "./routers/socialAccount"
 
 export const appRouter = createTRPCRouter({
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   content: contentRouter,
   customTemplate: customTemplateRouter,
   invitation: invitationRouter,
+  scheduledPost: scheduledPostRouter,
   socialAccount: socialAccountRouter,
 })
 
