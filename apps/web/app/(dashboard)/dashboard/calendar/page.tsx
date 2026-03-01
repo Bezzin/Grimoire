@@ -522,10 +522,98 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {/* Week view placeholder — implemented in Task 3 */}
+      {/* Week view */}
       {!isLoading && viewMode === "week" && (
-        <div className="flex flex-1 items-center justify-center text-muted-foreground">
-          Week view coming soon.
+        <div className="flex-1 overflow-auto">
+          {/* Column headers: time + 7 day columns */}
+          <div className="grid grid-cols-[64px_repeat(7,1fr)] border-b border-border sticky top-0 bg-background z-10">
+            <div className="py-2 text-center text-xs font-medium text-muted-foreground border-r border-border" />
+            {weekDays.map((day) => {
+              const isWeekToday = isSameDay(day, today)
+              const dayName = DAY_HEADERS[(day.getDay() + 6) % 7]
+              return (
+                <div
+                  key={formatDateKey(day)}
+                  className={cn(
+                    "py-2 text-center text-xs font-medium border-r border-border",
+                    isWeekToday
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground",
+                  )}
+                >
+                  {dayName} {day.getDate()}
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Time rows */}
+          <div className="grid grid-cols-[64px_repeat(7,1fr)] border-l border-border">
+            {WEEK_HOURS.map((hour) => (
+              <div key={hour} className="contents">
+                {/* Time label */}
+                <div className="flex items-start justify-end pr-2 pt-1 text-[11px] text-muted-foreground border-b border-r border-border h-16">
+                  {formatHourLabel(hour)}
+                </div>
+
+                {/* Day cells for this hour */}
+                {weekDays.map((day) => {
+                  const dateKey = formatDateKey(day)
+                  const hourKey = `${dateKey}|${String(hour).padStart(2, "0")}`
+                  const cellPosts = postsByDateAndHour[hourKey] ?? []
+                  const isWeekToday = isSameDay(day, today)
+
+                  return (
+                    <div
+                      key={hourKey}
+                      className={cn(
+                        "border-b border-r border-border h-16 p-0.5 overflow-hidden",
+                        isWeekToday && "bg-primary/5",
+                      )}
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        {cellPosts.slice(0, 2).map((post) => {
+                          const platform = post.socialAccount
+                            .platform as SocialPlatformKey
+                          const platformConfig = SOCIAL_PLATFORMS[platform]
+                          const platformInitial =
+                            platformConfig?.name?.charAt(0) ?? "?"
+                          const label =
+                            post.contentItem.body?.slice(0, 20) || "Untitled"
+                          const bgColor =
+                            PLATFORM_DOT_COLORS[platform] ?? "bg-gray-500"
+
+                          return (
+                            <button
+                              key={post.id}
+                              type="button"
+                              onClick={() => handlePostClick(post)}
+                              className={cn(
+                                "flex w-full items-center gap-1 rounded px-1.5 py-1 text-[11px] text-white truncate cursor-pointer text-left",
+                                bgColor,
+                                getStatusClasses(post.status),
+                              )}
+                              title={`${platformConfig?.name ?? platform}: ${post.contentItem.body?.slice(0, 60) || post.contentItem.title || "Untitled"}`}
+                            >
+                              <span className="font-semibold shrink-0">
+                                {platformInitial}
+                              </span>
+                              <span className="truncate">{label}</span>
+                            </button>
+                          )
+                        })}
+                        {cellPosts.length > 2 && (
+                          <span className="px-1 text-[10px] text-muted-foreground">
+                            +{cellPosts.length - 2} more
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
