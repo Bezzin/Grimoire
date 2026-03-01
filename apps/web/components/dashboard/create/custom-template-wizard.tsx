@@ -78,7 +78,7 @@ export function CustomTemplateWizard({ onComplete, onCancel }: CustomTemplateWiz
     createTemplate.mutate({
       name,
       description: description || undefined,
-      category,
+      category: category as "social" | "thread" | "blog" | "email" | "ads" | "image" | "video",
       tier: tier as "fast" | "standard" | "creative",
       inputFields,
       systemPrompt: generateSystemPrompt(),

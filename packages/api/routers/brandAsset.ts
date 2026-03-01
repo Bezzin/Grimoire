@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
+import type { Prisma } from "@grimoire/db"
 import { createTRPCRouter, orgProtectedProcedure } from "../trpc"
 import { PLANS } from "@grimoire/shared"
 import type { PlanKey } from "@grimoire/shared"
@@ -23,7 +24,7 @@ export const brandAssetRouter = createTRPCRouter({
         url: z.string().url(),
         fileSize: z.number().int().positive(),
         mimeType: z.string(),
-        metadata: z.record(z.unknown()).optional(),
+        metadata: z.record(z.string(), z.unknown()).nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -54,7 +55,7 @@ export const brandAssetRouter = createTRPCRouter({
           url: input.url,
           fileSize: input.fileSize,
           mimeType: input.mimeType,
-          metadata: input.metadata ?? undefined,
+          metadata: (input.metadata ?? undefined) as Prisma.InputJsonValue | undefined,
           brandProfileId: input.brandProfileId,
           organizationId: ctx.organization.id,
         },

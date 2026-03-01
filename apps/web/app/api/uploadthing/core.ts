@@ -1,13 +1,13 @@
-import { createUploadthing, type FileRouter } from "uploadthing/server"
+import { createUploadthing, type FileRouter } from "uploadthing/next"
 import { auth } from "@/lib/auth"
 
 const f = createUploadthing()
 
 export const ourFileRouter = {
   brandAsset: f({
-    image: { maxFileSize: "10MB", maxFileCount: 10 },
-    pdf: { maxFileSize: "20MB", maxFileCount: 5 },
-    blob: { maxFileSize: "5MB", maxFileCount: 5 },
+    image: { maxFileSize: "16MB", maxFileCount: 10 },
+    pdf: { maxFileSize: "16MB", maxFileCount: 5 },
+    blob: { maxFileSize: "4MB", maxFileCount: 5 },
   })
     .middleware(async () => {
       const session = await auth()
