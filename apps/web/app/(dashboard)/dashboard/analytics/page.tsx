@@ -23,6 +23,7 @@ import {
   FileText,
   Share2,
 } from "lucide-react"
+import { PlatformBreakdown } from "@/components/dashboard/analytics/platform-breakdown"
 
 type TimeSeriesMetric = "impressions" | "engagements" | "clicks" | "shares"
 
@@ -144,6 +145,11 @@ export default function AnalyticsPage() {
     data: timeSeriesData,
     isLoading: isTimeSeriesLoading,
   } = trpc.analytics.timeSeries.useQuery(timeSeriesInput)
+
+  const {
+    data: platformData,
+    isLoading: isPlatformLoading,
+  } = trpc.analytics.platformBreakdown.useQuery(queryInput)
 
   const isForbidden =
     error?.data?.code === "FORBIDDEN" ||
@@ -380,6 +386,12 @@ export default function AnalyticsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Platform Breakdown */}
+      <PlatformBreakdown
+        data={platformData ?? []}
+        isLoading={isPlatformLoading}
+      />
     </div>
   )
 }
