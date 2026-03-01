@@ -108,6 +108,63 @@ function groupPostsByDate(
   return groups
 }
 
+/** Returns the Monday of the week containing `date`. */
+function getWeekStart(date: Date): Date {
+  const d = new Date(date)
+  const dayOfWeek = d.getDay()
+  // Shift so Monday=0: (dayOfWeek + 6) % 7
+  const offset = (dayOfWeek + 6) % 7
+  d.setDate(d.getDate() - offset)
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+
+/** Returns the Sunday of the week containing `date`. */
+function getWeekEnd(date: Date): Date {
+  const monday = getWeekStart(date)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  sunday.setHours(23, 59, 59, 999)
+  return sunday
+}
+
+/** Formats a week range string, e.g. "Mar 2 - 8, 2026" or "Feb 28 - Mar 6, 2026". */
+function formatWeekRange(date: Date): string {
+  const start = getWeekStart(date)
+  const end = getWeekEnd(date)
+  const startMonth = start.toLocaleDateString("en-US", { month: "short" })
+  const endMonth = end.toLocaleDateString("en-US", { month: "short" })
+  const startDay = start.getDate()
+  const endDay = end.getDate()
+  const year = end.getFullYear()
+
+  if (start.getMonth() === end.getMonth()) {
+    return `${startMonth} ${startDay} - ${endDay}, ${year}`
+  }
+  return `${startMonth} ${startDay} - ${endMonth} ${endDay}, ${year}`
+}
+
+/** Groups posts by "YYYY-MM-DD|HH" key for week view. */
+function groupPostsByDateAndHour(
+  posts: CalendarPost[],
+): Record<string, CalendarPost[]> {
+  const groups: Record<string, CalendarPost[]> = {}
+  for (const post of posts) {
+    const dateObj =
+      typeof post.scheduledFor === "string"
+        ? new Date(post.scheduledFor)
+        : post.scheduledFor
+    const dateKey = formatDateKey(dateObj)
+    const hour = String(dateObj.getHours()).padStart(2, "0")
+    const key = `${dateKey}|${hour}`
+    if (!groups[key]) {
+      groups[key] = []
+    }
+    groups[key] = [...groups[key], post]
+  }
+  return groups
+}
+
 /** Checks if two dates are the same calendar day. */
 function isSameDay(a: Date, b: Date): boolean {
   return (
@@ -128,6 +185,17 @@ function formatMonthYear(date: Date): string {
 
 const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 const MAX_PILLS = 3
+
+/** Hours displayed in week view: 6 AM to 11 PM. */
+const WEEK_HOURS = Array.from({ length: 18 }, (_, i) => i + 6)
+
+/** Formats an hour number to display label, e.g. 6 -> "6 AM", 13 -> "1 PM". */
+function formatHourLabel(hour: number): string {
+  if (hour === 0) return "12 AM"
+  if (hour < 12) return `${hour} AM`
+  if (hour === 12) return "12 PM"
+  return `${hour - 12} PM`
+}
 
 /* ------------------------------------------------------------------ */
 /*  Status styling                                                     */
@@ -166,9 +234,19 @@ function PostPill({
   return (
     <button
       type="button"
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData("postId", post.id)
+        e.dataTransfer.setData(
+          "originalDate",
+          typeof post.scheduledFor === "string"
+            ? post.scheduledFor
+            : post.scheduledFor.toISOString(),
+        )
+      }}
       onClick={() => onClick(post)}
       className={cn(
-        "flex w-full items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-white truncate cursor-pointer text-left",
+        "flex w-full items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-white truncate cursor-grab text-left active:cursor-grabbing",
         bgColor,
         getStatusClasses(post.status),
       )}
@@ -188,21 +266,39 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState<Date>(() => new Date())
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month")
   const [selectedPost, setSelectedPost] = useState<CalendarPost | null>(null)
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null)
 
   // Suppress unused warning — selectedPost will be used by Task 4 (detail panel)
   void selectedPost
 
   /* ---- Grid bounds ---- */
-  const startOfGrid = useMemo(() => getFirstDayOfGrid(currentDate), [currentDate])
-  const endOfGrid = useMemo(() => getLastDayOfGrid(currentDate), [currentDate])
+  const startOfGrid = useMemo(
+    () =>
+      viewMode === "week"
+        ? getWeekStart(currentDate)
+        : getFirstDayOfGrid(currentDate),
+    [currentDate, viewMode],
+  )
+  const endOfGrid = useMemo(
+    () =>
+      viewMode === "week"
+        ? getWeekEnd(currentDate)
+        : getLastDayOfGrid(currentDate),
+    [currentDate, viewMode],
+  )
 
   /* ---- Data fetching ---- */
-  const { data: posts, isLoading } = trpc.scheduledPost.getByDateRange.useQuery(
+  const { data: posts, isLoading, refetch } = trpc.scheduledPost.getByDateRange.useQuery(
     {
       start: startOfGrid.toISOString(),
       end: endOfGrid.toISOString(),
     },
   )
+
+  /* ---- Reschedule mutation (drag-and-drop) ---- */
+  const rescheduleMutation = trpc.scheduledPost.reschedule.useMutation({
+    onSuccess: () => refetch(),
+  })
 
   /* ---- Derived data ---- */
   const days = useMemo(
@@ -215,21 +311,39 @@ export default function CalendarPage() {
     [posts],
   )
 
+  const postsByDateAndHour = useMemo(
+    () => groupPostsByDateAndHour((posts as CalendarPost[] | undefined) ?? []),
+    [posts],
+  )
+
+  const weekDays = useMemo(() => {
+    if (viewMode !== "week") return []
+    return getDaysInGrid(getWeekStart(currentDate), getWeekEnd(currentDate))
+  }, [currentDate, viewMode])
+
   const today = useMemo(() => new Date(), [])
 
   /* ---- Navigation handlers ---- */
-  function goToPreviousMonth() {
+  function goToPrevious() {
     setCurrentDate((prev) => {
       const next = new Date(prev)
-      next.setMonth(next.getMonth() - 1)
+      if (viewMode === "week") {
+        next.setDate(next.getDate() - 7)
+      } else {
+        next.setMonth(next.getMonth() - 1)
+      }
       return next
     })
   }
 
-  function goToNextMonth() {
+  function goToNext() {
     setCurrentDate((prev) => {
       const next = new Date(prev)
-      next.setMonth(next.getMonth() + 1)
+      if (viewMode === "week") {
+        next.setDate(next.getDate() + 7)
+      } else {
+        next.setMonth(next.getMonth() + 1)
+      }
       return next
     })
   }
@@ -238,8 +352,32 @@ export default function CalendarPage() {
     setCurrentDate(new Date())
   }
 
+  const headingText =
+    viewMode === "week"
+      ? formatWeekRange(currentDate)
+      : formatMonthYear(currentDate)
+
   function handlePostClick(post: CalendarPost) {
     setSelectedPost(post)
+  }
+
+  function handleDrop(e: React.DragEvent, targetDay: Date) {
+    e.preventDefault()
+    setDragOverDate(null)
+
+    const postId = e.dataTransfer.getData("postId")
+    const originalDate = e.dataTransfer.getData("originalDate")
+    if (!postId) return
+
+    // Keep the original time, just change the date
+    const original = new Date(originalDate)
+    const newDate = new Date(targetDay)
+    newDate.setHours(original.getHours(), original.getMinutes(), 0, 0)
+
+    rescheduleMutation.mutate({
+      id: postId,
+      scheduledFor: newDate.toISOString(),
+    })
   }
 
   /* ---- Render ---- */
@@ -251,8 +389,8 @@ export default function CalendarPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={goToPreviousMonth}
-            aria-label="Previous month"
+            onClick={goToPrevious}
+            aria-label={viewMode === "week" ? "Previous week" : "Previous month"}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -262,13 +400,13 @@ export default function CalendarPage() {
           <Button
             variant="outline"
             size="icon"
-            onClick={goToNextMonth}
-            aria-label="Next month"
+            onClick={goToNext}
+            aria-label={viewMode === "week" ? "Next week" : "Next month"}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
           <h1 className="ml-4 text-xl font-semibold">
-            {formatMonthYear(currentDate)}
+            {headingText}
           </h1>
         </div>
 
@@ -336,9 +474,16 @@ export default function CalendarPage() {
               return (
                 <div
                   key={key}
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setDragOverDate(key)
+                  }}
+                  onDragLeave={() => setDragOverDate(null)}
+                  onDrop={(e) => handleDrop(e, day)}
                   className={cn(
-                    "min-h-[100px] border-b border-r border-border p-1.5",
+                    "min-h-[100px] border-b border-r border-border p-1.5 transition-colors",
                     !isCurrentMonth && "bg-muted/30",
+                    dragOverDate === key && "ring-2 ring-primary bg-primary/5",
                   )}
                 >
                   {/* Day number */}
