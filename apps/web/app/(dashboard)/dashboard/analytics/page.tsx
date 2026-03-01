@@ -6,6 +6,15 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
+import {
   Eye,
   Heart,
   MousePointerClick,
@@ -14,6 +23,49 @@ import {
   FileText,
   Share2,
 } from "lucide-react"
+
+type TimeSeriesMetric = "impressions" | "engagements" | "clicks" | "shares"
+
+const METRIC_OPTIONS: { label: string; value: TimeSeriesMetric }[] = [
+  { label: "Impressions", value: "impressions" },
+  { label: "Engagements", value: "engagements" },
+  { label: "Clicks", value: "clicks" },
+  { label: "Shares", value: "shares" },
+]
+
+const compactFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  compactDisplay: "short",
+})
+
+const tooltipFormatter = new Intl.NumberFormat("en-US")
+
+function formatDateTick(dateStr: string): string {
+  const date = new Date(dateStr)
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}
+
+function formatYAxis(value: number): string {
+  return compactFormatter.format(value)
+}
+
+function ChartSkeleton() {
+  return (
+    <div className="flex h-[350px] w-full items-center justify-center">
+      <div className="h-full w-full animate-pulse rounded bg-muted" />
+    </div>
+  )
+}
+
+function ChartEmpty() {
+  return (
+    <div className="flex h-[350px] w-full items-center justify-center">
+      <p className="text-sm text-muted-foreground">
+        No analytics data for this period
+      </p>
+    </div>
+  )
+}
 
 type DatePreset = "7d" | "30d" | "90d"
 
@@ -61,6 +113,8 @@ function SecondaryStatSkeleton() {
 export default function AnalyticsPage() {
   const [activePreset, setActivePreset] = useState<DatePreset>("30d")
   const [dateRange, setDateRange] = useState(() => makeDateRange(30))
+  const [selectedMetric, setSelectedMetric] =
+    useState<TimeSeriesMetric>("impressions")
 
   function handlePresetChange(preset: DatePreset, days: number) {
     setActivePreset(preset)
@@ -76,6 +130,20 @@ export default function AnalyticsPage() {
   )
 
   const { data, isLoading, error } = trpc.analytics.overview.useQuery(queryInput)
+
+  const timeSeriesInput = useMemo(
+    () => ({
+      start: dateRange.start.toISOString(),
+      end: dateRange.end.toISOString(),
+      metric: selectedMetric,
+    }),
+    [dateRange.start, dateRange.end, selectedMetric],
+  )
+
+  const {
+    data: timeSeriesData,
+    isLoading: isTimeSeriesLoading,
+  } = trpc.analytics.timeSeries.useQuery(timeSeriesInput)
 
   const isForbidden =
     error?.data?.code === "FORBIDDEN" ||
@@ -222,6 +290,96 @@ export default function AnalyticsPage() {
           </>
         )}
       </div>
+
+      {/* Time Series Chart */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base font-semibold">
+            Performance Over Time
+          </CardTitle>
+          <div className="flex items-center gap-1 rounded-lg bg-muted/50 p-1">
+            {METRIC_OPTIONS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setSelectedMetric(option.value)}
+                className={cn(
+                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                  selectedMetric === option.value
+                    ? "bg-background shadow-sm"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isTimeSeriesLoading ? (
+            <ChartSkeleton />
+          ) : !timeSeriesData?.length ? (
+            <ChartEmpty />
+          ) : (
+            <ResponsiveContainer width="100%" height={350}>
+              <AreaChart data={timeSeriesData}>
+                <defs>
+                  <linearGradient
+                    id="chartGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  opacity={0.2}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDateTick}
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tickFormatter={formatYAxis}
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={48}
+                />
+                <Tooltip
+                  formatter={(value: number | undefined) => [
+                    tooltipFormatter.format(value ?? 0),
+                    selectedMetric.charAt(0).toUpperCase() +
+                      selectedMetric.slice(1),
+                  ]}
+                  labelFormatter={(label) => formatDateTick(String(label))}
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid hsl(var(--border))",
+                    backgroundColor: "hsl(var(--popover))",
+                    color: "hsl(var(--popover-foreground))",
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  fill="url(#chartGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
