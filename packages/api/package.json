@@ -10,9 +10,10 @@
     "@grimoire/shared": "workspace:*",
     "@trpc/server": "^11.0.0",
     "ai": "^4.0.0",
+    "resend": "^6.9.3",
+    "stripe": "^17.0.0",
     "superjson": "^2.2.0",
-    "zod": "^3.23.0",
-    "stripe": "^17.0.0"
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "typescript": "^5.6.0"

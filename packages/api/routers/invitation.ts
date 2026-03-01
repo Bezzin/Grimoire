@@ -65,6 +65,23 @@ export const invitationRouter = createTRPCRouter({
         },
       })
 
+      // Send invite email (non-blocking)
+      try {
+        const { sendInvitationEmail } = await import("../lib/email")
+        const inviter = await ctx.prisma.user.findUnique({
+          where: { id: ctx.session.user.id },
+        })
+        await sendInvitationEmail({
+          to: input.email,
+          inviterName: inviter?.name ?? "A team member",
+          organizationName: ctx.organization.name,
+          role: input.role,
+          token: invitation.token,
+        })
+      } catch (err) {
+        console.error("Failed to send invitation email:", err)
+      }
+
       return invitation
     }),
 
