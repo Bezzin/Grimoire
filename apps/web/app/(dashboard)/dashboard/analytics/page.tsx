@@ -24,6 +24,7 @@ import {
   Share2,
 } from "lucide-react"
 import { PlatformBreakdown } from "@/components/dashboard/analytics/platform-breakdown"
+import { TopPostsTable } from "@/components/dashboard/analytics/top-posts-table"
 
 type TimeSeriesMetric = "impressions" | "engagements" | "clicks" | "shares"
 
@@ -150,6 +151,19 @@ export default function AnalyticsPage() {
     data: platformData,
     isLoading: isPlatformLoading,
   } = trpc.analytics.platformBreakdown.useQuery(queryInput)
+
+  const [topPostsSortBy, setTopPostsSortBy] = useState<
+    "impressions" | "engagements" | "clicks"
+  >("engagements")
+
+  const {
+    data: topPostsData,
+    isLoading: isTopPostsLoading,
+  } = trpc.analytics.topPosts.useQuery({
+    start: queryInput.start,
+    end: queryInput.end,
+    sortBy: topPostsSortBy,
+  })
 
   const isForbidden =
     error?.data?.code === "FORBIDDEN" ||
@@ -391,6 +405,33 @@ export default function AnalyticsPage() {
       <PlatformBreakdown
         data={platformData ?? []}
         isLoading={isPlatformLoading}
+      />
+
+      {/* Top Posts */}
+      <TopPostsTable
+        data={(topPostsData ?? []).map((row) => ({
+          platformPostId: row.platformPostId,
+          metricValue: row.total,
+          post: row.scheduledPost
+            ? {
+                id: row.scheduledPost.id,
+                platform: row.scheduledPost.socialAccount?.platform ?? "UNKNOWN",
+                accountName:
+                  row.scheduledPost.socialAccount?.displayName ??
+                  row.scheduledPost.socialAccount?.platformUsername ??
+                  null,
+                title: row.scheduledPost.contentItem?.title ?? null,
+                body: row.scheduledPost.contentItem?.body ?? "",
+                publishedAt: row.scheduledPost.publishedAt
+                  ? String(row.scheduledPost.publishedAt)
+                  : null,
+                platformPostUrl: row.scheduledPost.platformPostUrl ?? null,
+              }
+            : null,
+        }))}
+        sortBy={topPostsSortBy}
+        onSortChange={setTopPostsSortBy}
+        isLoading={isTopPostsLoading}
       />
     </div>
   )
