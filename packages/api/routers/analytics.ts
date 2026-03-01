@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
-import { Prisma } from "@prisma/client"
+import { Prisma } from "@grimoire/db"
 import { createTRPCRouter, orgProtectedProcedure } from "../trpc"
 import { PLANS } from "@grimoire/shared"
 import type { PlanKey } from "@grimoire/shared"
@@ -132,7 +132,7 @@ export const analyticsRouter = createTRPCRouter({
         }
         const entry = platformMap[key]
         const metricType = event.metricType as keyof Omit<typeof entry, "platform">
-        if (metricType in entry && metricType !== "platform") {
+        if (metricType in entry) {
           entry[metricType] = event._sum.value ?? 0
         }
       }
