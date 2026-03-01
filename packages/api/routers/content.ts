@@ -126,7 +126,10 @@ export const contentRouter = createTRPCRouter({
 
       systemPrompt = systemPrompt.replace(/\{\{[^}]+\}\}/g, "")
 
-      const modelId = getModelId(template.tier, input.preferQuality)
+      const textTier = (template.tier === "image" || template.tier === "video")
+        ? "standard" as const
+        : template.tier
+      const modelId = getModelId(textTier, input.preferQuality)
 
       const contentItem = await ctx.prisma.contentItem.create({
         data: {
