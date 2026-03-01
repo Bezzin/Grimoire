@@ -73,6 +73,8 @@ model Organization {
   contentItems    ContentItem[]
   scheduledPosts  ScheduledPost[]
   analyticsEvents AnalyticsEvent[]
+  brandAssets     BrandAsset[]
+  customTemplates CustomTemplate[]
 }
 
 model OrganizationMember {
@@ -100,6 +102,15 @@ enum OrgRole {
   ADMIN
   MEMBER
   VIEWER
+}
+
+enum AssetType {
+  LOGO
+  FONT
+  COLOR_PALETTE
+  GUIDELINE_PDF
+  PRODUCT_PHOTO
+  STYLE_REFERENCE
 }
 
 // ============ SOCIAL ACCOUNTS ============
@@ -156,6 +167,49 @@ model BrandProfile {
 
   organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   contentItems ContentItem[]
+  assets       BrandAsset[]
+}
+
+model BrandAsset {
+  id             String    @id @default(cuid())
+  type           AssetType
+  name           String
+  url            String
+  fileSize       Int
+  mimeType       String
+  metadata       Json?
+  brandProfileId String
+  organizationId String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  brandProfile BrandProfile @relation(fields: [brandProfileId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([brandProfileId])
+  @@index([organizationId])
+}
+
+model CustomTemplate {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  category       String
+  icon           String   @default("FileText")
+  tier           String   @default("standard")
+  inputFields    Json
+  systemPrompt   String   @db.Text
+  platforms      String[]
+  isPublished    Boolean  @default(true)
+  usageCount     Int      @default(0)
+  organizationId String
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
 }
 
 // ============ CONTENT ============
@@ -180,6 +234,8 @@ model ContentItem {
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
+  generationJobId  String?
+
   organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   brandProfile   BrandProfile?   @relation(fields: [brandProfileId], references: [id])
   scheduledPosts ScheduledPost[]
@@ -197,6 +253,8 @@ enum ContentType {
   THREAD
   CAROUSEL
   VIDEO_SCRIPT
+  IMAGE
+  VIDEO
 }
 
 enum ContentStatus {

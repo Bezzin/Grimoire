@@ -9,3 +9,18 @@ export { getPinecone, getIndex, getNamespace } from "./rag/vectorStore"
 export { chunkText, ingestBrandExamples } from "./rag/ingest"
 export { retrieveBrandContext, formatBrandContext } from "./rag/retrieve"
 export type { BrandContext } from "./rag/retrieve"
+export { scrapePosts } from "./scraping/adapters"
+export type { ScrapedPost } from "./scraping/adapters"
+export { analyzeVoice } from "./scraping/analyzer"
+export type { VoiceAnalysis } from "./scraping/analyzer"
+export { generateImage } from "./generation/image"
+export type {
+  ImageGenerationOptions,
+  ImageGenerationResult,
+} from "./generation/image"
+export { startVideoGeneration, getVideoStatus } from "./generation/video"
+export type {
+  VideoGenerationOptions,
+  VideoGenerationJob,
+  VideoStatusResult,
+} from "./generation/video"

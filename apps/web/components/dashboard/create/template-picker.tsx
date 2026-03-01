@@ -6,25 +6,33 @@ import { Input } from "@/components/ui/input"
 import { TEMPLATES, type TemplateCategory, type PromptTemplate } from "@grimoire/shared"
 import { cn } from "@/lib/utils"
 import * as LucideIcons from "lucide-react"
+import { trpc } from "@/lib/trpc/client"
 
-const CATEGORIES: { key: TemplateCategory | "all"; label: string }[] = [
+const CATEGORIES: { key: TemplateCategory | "all" | "custom"; label: string }[] = [
   { key: "all", label: "All" },
   { key: "social", label: "Social" },
   { key: "thread", label: "Thread" },
   { key: "blog", label: "Blog" },
   { key: "email", label: "Email" },
+  { key: "image", label: "Image" },
+  { key: "video", label: "Video" },
+  { key: "custom", label: "Custom" },
 ]
 
 interface TemplatePickerProps {
   selected: PromptTemplate | null
   onSelect: (template: PromptTemplate) => void
+  onSelectCustom: (template: { id: string; name: string; category: string; tier: string; inputFields: unknown; systemPrompt: string }) => void
 }
 
-export function TemplatePicker({ selected, onSelect }: TemplatePickerProps) {
-  const [category, setCategory] = useState<TemplateCategory | "all">("all")
+export function TemplatePicker({ selected, onSelect, onSelectCustom }: TemplatePickerProps) {
+  const [category, setCategory] = useState<TemplateCategory | "all" | "custom">("all")
   const [search, setSearch] = useState("")
 
+  const { data: customTemplates } = trpc.customTemplate.list.useQuery()
+
   const filtered = TEMPLATES.filter((t) => {
+    if (category === "custom") return false
     if (category !== "all" && t.category !== category) return false
     if (search && !t.name.toLowerCase().includes(search.toLowerCase())) return false
     return true
@@ -90,6 +98,26 @@ export function TemplatePicker({ selected, onSelect }: TemplatePickerProps) {
             </button>
           )
         })}
+        {(category === "all" || category === "custom") && customTemplates?.map((ct) => (
+          <button
+            key={`custom:${ct.id}`}
+            onClick={() => onSelectCustom(ct)}
+            className={cn(
+              "flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
+              "hover:bg-muted/30"
+            )}
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm font-medium leading-tight">{ct.name}</p>
+                <span className="rounded bg-primary/10 px-1 py-0.5 text-[9px] font-semibold text-primary">Custom</span>
+              </div>
+              <p className="mt-0.5 text-[11px] leading-tight text-muted-foreground line-clamp-2">
+                {ct.description ?? ct.category}
+              </p>
+            </div>
+          </button>
+        ))}
       </div>
     </div>
   )
