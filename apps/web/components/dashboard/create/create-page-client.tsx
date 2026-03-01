@@ -17,6 +17,9 @@ export function CreatePageClient() {
     systemPrompt: string
     modelId: string
     tier: string
+    contentType?: "text" | "image" | "video"
+    aspectRatio?: string
+    duration?: number
   } | null>(null)
   const [currentContent, setCurrentContent] = useState("")
   const [showTemplateWizard, setShowTemplateWizard] = useState(false)
@@ -29,12 +32,26 @@ export function CreatePageClient() {
     systemPrompt: string
   } | null>(null)
 
-  function handleGenerated(data: { contentItemId: string; systemPrompt: string; modelId: string }) {
+  function handleGenerated(data: {
+    contentItemId: string
+    systemPrompt: string
+    modelId: string
+    aspectRatio?: string
+    duration?: number
+  }) {
+    const tier = selectedTemplate?.tier ?? customTemplate?.tier ?? "standard"
+    const contentType = tier === "image" ? "image" as const
+      : tier === "video" ? "video" as const
+      : "text" as const
+
     setContentItemId(data.contentItemId)
     setGenerationData({
       systemPrompt: data.systemPrompt,
       modelId: data.modelId,
-      tier: selectedTemplate?.tier ?? customTemplate?.tier ?? "standard",
+      tier,
+      contentType,
+      aspectRatio: data.aspectRatio,
+      duration: data.duration,
     })
   }
 
@@ -98,10 +115,10 @@ export function CreatePageClient() {
             template={{
               id: customTemplate.id,
               name: customTemplate.name,
-              category: customTemplate.category as "social" | "thread" | "blog" | "email" | "ads",
+              category: customTemplate.category as "social" | "thread" | "blog" | "email" | "ads" | "image" | "video",
               description: "",
               icon: "FileText",
-              tier: customTemplate.tier as "fast" | "standard" | "creative",
+              tier: customTemplate.tier as "fast" | "standard" | "creative" | "image" | "video",
               inputSchema: {} as PromptTemplate["inputSchema"],
               systemPrompt: customTemplate.systemPrompt,
               platforms: [],

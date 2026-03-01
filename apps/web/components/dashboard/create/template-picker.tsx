@@ -14,6 +14,8 @@ const CATEGORIES: { key: TemplateCategory | "all" | "custom"; label: string }[] 
   { key: "thread", label: "Thread" },
   { key: "blog", label: "Blog" },
   { key: "email", label: "Email" },
+  { key: "image", label: "Image" },
+  { key: "video", label: "Video" },
   { key: "custom", label: "Custom" },
 ]
 

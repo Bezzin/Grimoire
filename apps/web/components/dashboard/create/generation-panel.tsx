@@ -10,7 +10,13 @@ import type { PromptTemplate } from "@grimoire/shared"
 
 interface GenerationPanelProps {
   template: PromptTemplate
-  onGenerated: (data: { contentItemId: string; systemPrompt: string; modelId: string }) => void
+  onGenerated: (data: {
+    contentItemId: string
+    systemPrompt: string
+    modelId: string
+    aspectRatio?: string
+    duration?: number
+  }) => void
   customInputFields?: Array<{ key: string; label: string; type: string; required: boolean; placeholder?: string }>
 }
 
@@ -22,6 +28,23 @@ export function GenerationPanel({ template, onGenerated, customInputFields }: Ge
   const { data: usage } = trpc.content.getUsage.useQuery()
   const generate = trpc.content.generate.useMutation({
     onSuccess: (data) => onGenerated(data),
+  })
+  const generateImage = trpc.content.generateImage.useMutation({
+    onSuccess: (data) => onGenerated({
+      contentItemId: data.contentItemId,
+      systemPrompt: data.systemPrompt,
+      modelId: "",
+      aspectRatio: data.aspectRatio,
+    }),
+  })
+  const generateVideo = trpc.content.generateVideo.useMutation({
+    onSuccess: (data) => onGenerated({
+      contentItemId: data.contentItemId,
+      systemPrompt: data.systemPrompt,
+      modelId: "",
+      duration: data.duration,
+      aspectRatio: data.aspectRatio,
+    }),
   })
 
   const inputFields = customInputFields
@@ -41,12 +64,23 @@ export function GenerationPanel({ template, onGenerated, customInputFields }: Ge
       )
 
   function handleGenerate() {
-    generate.mutate({
+    const payload = {
       templateId: template.id,
       inputs,
       brandProfileId: profiles?.[0]?.id,
-    })
+    }
+
+    if (template.tier === "image") {
+      generateImage.mutate(payload)
+    } else if (template.tier === "video") {
+      generateVideo.mutate(payload)
+    } else {
+      generate.mutate({ ...payload, preferQuality: false })
+    }
   }
+
+  const isPending = generate.isPending || generateImage.isPending || generateVideo.isPending
+  const error = generate.error || generateImage.error || generateVideo.error
 
   return (
     <div className="border-b border-border/50">
@@ -107,17 +141,17 @@ export function GenerationPanel({ template, onGenerated, customInputFields }: Ge
             )}
             <Button
               onClick={handleGenerate}
-              disabled={generate.isPending}
+              disabled={isPending}
               className="gap-2 grimoire-gradient text-white shadow-glow-sm"
               size="sm"
             >
               <Sparkles className="h-3.5 w-3.5" />
-              {generate.isPending ? "Generating..." : "Generate"}
+              {isPending ? "Generating..." : "Generate"}
             </Button>
           </div>
 
-          {generate.error && (
-            <p className="text-xs text-destructive">{generate.error.message}</p>
+          {error && (
+            <p className="text-xs text-destructive">{error.message}</p>
           )}
         </div>
       )}
