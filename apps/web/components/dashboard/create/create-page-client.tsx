@@ -4,6 +4,9 @@ import { useState } from "react"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { PromptTemplate } from "@grimoire/shared"
+import { PLANS } from "@grimoire/shared"
+import type { PlanKey } from "@grimoire/shared"
+import { trpc } from "@/lib/trpc/client"
 import { TemplatePicker } from "./template-picker"
 import { GenerationPanel } from "./generation-panel"
 import { ContentEditor } from "./content-editor"
@@ -31,6 +34,11 @@ export function CreatePageClient() {
     inputFields: unknown
     systemPrompt: string
   } | null>(null)
+
+  const { data: orgData } = trpc.user.getOrganization.useQuery()
+  const hasScheduling = orgData?.plan
+    ? (PLANS[orgData.plan as PlanKey]?.scheduling ?? false)
+    : false
 
   function handleGenerated(data: {
     contentItemId: string
@@ -130,6 +138,7 @@ export function CreatePageClient() {
         <ContentEditor
           contentItemId={contentItemId}
           generationData={generationData}
+          hasScheduling={hasScheduling}
         />
       </div>
 
