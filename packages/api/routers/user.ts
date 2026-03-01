@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { TRPCError } from "@trpc/server"
-import { createTRPCRouter, protectedProcedure } from "../trpc"
+import { createTRPCRouter, protectedProcedure, orgProtectedProcedure } from "../trpc"
 import { PLANS } from "@grimoire/shared"
 import type { PlanKey } from "@grimoire/shared"
 
@@ -185,5 +185,58 @@ export const userRouter = createTRPCRouter({
       })
 
       return org
+    }),
+
+  updateMemberRole: orgProtectedProcedure
+    .input(
+      z.object({
+        memberId: z.string(),
+        role: z.enum(["ADMIN", "MEMBER", "VIEWER"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const ROLE_HIERARCHY: Record<string, number> = { VIEWER: 0, MEMBER: 1, ADMIN: 2, OWNER: 3 }
+      if ((ROLE_HIERARCHY[ctx.membership.role] ?? 0) < ROLE_HIERARCHY.ADMIN) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can change roles." })
+      }
+
+      const member = await ctx.prisma.organizationMember.findFirst({
+        where: { id: input.memberId, organizationId: ctx.organization.id },
+      })
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" })
+      }
+      if (member.role === "OWNER") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Cannot change the owner's role." })
+      }
+
+      return ctx.prisma.organizationMember.update({
+        where: { id: input.memberId },
+        data: { role: input.role },
+      })
+    }),
+
+  removeMember: orgProtectedProcedure
+    .input(z.object({ memberId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const ROLE_HIERARCHY: Record<string, number> = { VIEWER: 0, MEMBER: 1, ADMIN: 2, OWNER: 3 }
+      if ((ROLE_HIERARCHY[ctx.membership.role] ?? 0) < ROLE_HIERARCHY.ADMIN) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Only admins can remove members." })
+      }
+
+      const member = await ctx.prisma.organizationMember.findFirst({
+        where: { id: input.memberId, organizationId: ctx.organization.id },
+      })
+      if (!member) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" })
+      }
+      if (member.role === "OWNER") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Cannot remove the owner." })
+      }
+      if (member.userId === ctx.session.user.id) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Cannot remove yourself." })
+      }
+
+      return ctx.prisma.organizationMember.delete({ where: { id: input.memberId } })
     }),
 })
