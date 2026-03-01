@@ -23,6 +23,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   organizations OrganizationMember[]
+  invitations   Invitation[]
 }
 
 model Account {
@@ -68,6 +69,7 @@ model Organization {
 
   // Relations
   members         OrganizationMember[]
+  invitations     Invitation[]
   socialAccounts  SocialAccount[]
   brandProfiles   BrandProfile[]
   contentItems    ContentItem[]
@@ -90,6 +92,25 @@ model OrganizationMember {
   @@unique([userId, organizationId])
 }
 
+model Invitation {
+  id             String           @id @default(cuid())
+  email          String
+  role           OrgRole          @default(MEMBER)
+  token          String           @unique @default(cuid())
+  expiresAt      DateTime
+  status         InvitationStatus @default(PENDING)
+  invitedById    String
+  organizationId String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  invitedBy    User         @relation(fields: [invitedById], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([email, organizationId])
+  @@index([token])
+}
+
 enum Plan {
   FREE
   STARTER
@@ -103,6 +124,13 @@ enum OrgRole {
   ADMIN
   MEMBER
   VIEWER
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
 }
 
 enum AssetType {
