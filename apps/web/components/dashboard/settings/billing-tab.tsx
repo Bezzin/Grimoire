@@ -19,6 +19,7 @@ const PLAN_BADGE_STYLES: Record<string, string> = {
   STARTER: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
   PRO: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
   TEAM: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  AGENCY: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
 }
 
 const PLAN_FEATURES: Record<PlanKey, string[]> = {
@@ -42,6 +43,12 @@ const PLAN_FEATURES: Record<PlanKey, string[]> = {
     "Approval workflows",
     "Team analytics",
   ],
+  AGENCY: [
+    "Everything in Team",
+    "25 social accounts",
+    "10 organizations",
+    "Dedicated support",
+  ],
 }
 
 const PLAN_PRICES: Record<PlanKey, string> = {
@@ -49,15 +56,17 @@ const PLAN_PRICES: Record<PlanKey, string> = {
   STARTER: "$29/mo",
   PRO: "$39/mo",
   TEAM: "$79/mo",
+  AGENCY: "$149/mo",
 }
 
-const PLAN_ORDER: PlanKey[] = ["FREE", "STARTER", "PRO", "TEAM"]
+const PLAN_ORDER: PlanKey[] = ["FREE", "STARTER", "PRO", "TEAM", "AGENCY"]
 
 const PRICE_KEYS: Record<PlanKey, string> = {
   FREE: "",
   STARTER: "STARTER_MONTHLY",
   PRO: "PRO_MONTHLY",
   TEAM: "TEAM_MONTHLY",
+  AGENCY: "AGENCY_MONTHLY",
 }
 
 function BillingSkeleton() {
@@ -72,8 +81,8 @@ function BillingSkeleton() {
           <div className="h-6 w-24 animate-pulse rounded bg-muted" />
         </CardContent>
       </Card>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        {[1, 2, 3, 4, 5].map((i) => (
           <Card key={i}>
             <CardHeader>
               <div className="h-5 w-20 animate-pulse rounded bg-muted" />
@@ -190,7 +199,7 @@ export function BillingTab() {
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Compare Plans</h3>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           {PLAN_ORDER.map((planKey) => {
             const planIndex = getPlanIndex(planKey)
             const isCurrent = planKey === currentPlan
