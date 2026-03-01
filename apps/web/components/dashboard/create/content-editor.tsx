@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useCompletion } from "ai/react"
-import { Save, Loader2, RefreshCw, Image as ImageIcon, Film } from "lucide-react"
+import { Save, Loader2, RefreshCw, Image as ImageIcon, Film, Clock, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { trpc } from "@/lib/trpc/client"
+import { ScheduleModal } from "./schedule-modal"
 
 interface ContentEditorProps {
   contentItemId: string | null
@@ -16,11 +17,14 @@ interface ContentEditorProps {
     aspectRatio?: string
     duration?: number
   } | null
+  hasScheduling?: boolean
 }
 
-export function ContentEditor({ contentItemId, generationData }: ContentEditorProps) {
+export function ContentEditor({ contentItemId, generationData, hasScheduling }: ContentEditorProps) {
   const [content, setContent] = useState("")
   const [saving, setSaving] = useState(false)
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [scheduleMode, setScheduleMode] = useState<"schedule" | "publish-now">("schedule")
 
   // Media state
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
@@ -318,6 +322,35 @@ export function ContentEditor({ contentItemId, generationData }: ContentEditorPr
             <Save className="h-3.5 w-3.5" />
             {saving ? "Saving..." : "Save Draft"}
           </Button>
+          {hasScheduling && canSave && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setScheduleMode("publish-now")
+                  setScheduleModalOpen(true)
+                }}
+                disabled={!canSave}
+                className="gap-1.5"
+              >
+                <Send className="h-3.5 w-3.5" />
+                Publish Now
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setScheduleMode("schedule")
+                  setScheduleModalOpen(true)
+                }}
+                disabled={!canSave}
+                className="gap-1.5"
+              >
+                <Clock className="h-3.5 w-3.5" />
+                Schedule
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -400,6 +433,15 @@ export function ContentEditor({ contentItemId, generationData }: ContentEditorPr
           </div>
         )}
       </div>
+
+      {contentItemId && (
+        <ScheduleModal
+          open={scheduleModalOpen}
+          onClose={() => setScheduleModalOpen(false)}
+          contentItemId={contentItemId}
+          mode={scheduleMode}
+        />
+      )}
     </div>
   )
 }
