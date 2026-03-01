@@ -71,7 +71,7 @@ export async function GET(
         tokenExpiresAt: tokens.expiresIn
           ? new Date(Date.now() + tokens.expiresIn * 1000)
           : null,
-        scopes: SOCIAL_OAUTH_CONFIG[platform].scopes,
+        scopes: [...SOCIAL_OAUTH_CONFIG[platform].scopes],
         organizationId: membership.organizationId,
       },
     })
