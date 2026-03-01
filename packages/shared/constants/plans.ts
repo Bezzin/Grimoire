@@ -11,6 +11,7 @@ export const PLANS = {
     brandAssets: 5,
     customTemplates: 3,
     videoGeneration: false,
+    maxOrganizations: 1,
   },
   STARTER: {
     name: "Starter",
@@ -25,6 +26,7 @@ export const PLANS = {
     brandAssets: 50,
     customTemplates: 20,
     videoGeneration: true,
+    maxOrganizations: 1,
   },
   PRO: {
     name: "Pro",
@@ -39,6 +41,7 @@ export const PLANS = {
     brandAssets: -1,
     customTemplates: -1,
     videoGeneration: true,
+    maxOrganizations: 1,
   },
   TEAM: {
     name: "Team",
@@ -53,6 +56,22 @@ export const PLANS = {
     brandAssets: -1,
     customTemplates: -1,
     videoGeneration: true,
+    maxOrganizations: 1,
+  },
+  AGENCY: {
+    name: "Agency",
+    price: 14900,
+    priceAnnual: 124167,
+    socialAccounts: 25,
+    aiGenerationsPerMonth: -1,
+    scheduling: true,
+    analytics: true,
+    brandVoiceRag: true,
+    teamSeats: 3,
+    brandAssets: -1,
+    customTemplates: -1,
+    videoGeneration: true,
+    maxOrganizations: 10,
   },
 } as const
 
