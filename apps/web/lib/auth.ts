@@ -16,7 +16,7 @@ const nextAuth = NextAuth({
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
-    newUser: "/dashboard",
+    newUser: "/onboarding",
   },
   providers: [
     Google({

@@ -8,11 +8,14 @@ export default auth((req) => {
     req.nextUrl.pathname.startsWith("/signup") ||
     req.nextUrl.pathname.startsWith("/forgot-password")
   const isDashboard = req.nextUrl.pathname.startsWith("/dashboard")
+  const isOnboarding = req.nextUrl.pathname.startsWith("/onboarding")
 
-  if (isDashboard && !isLoggedIn) {
+  // Protect dashboard and onboarding — require login
+  if ((isDashboard || isOnboarding) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
 
+  // Redirect logged-in users away from auth pages
   if (isAuthPage && isLoggedIn) {
     return NextResponse.redirect(new URL("/dashboard", req.url))
   }
@@ -21,5 +24,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/signup", "/forgot-password"],
+  matcher: ["/dashboard/:path*", "/onboarding", "/login", "/signup", "/forgot-password"],
 }

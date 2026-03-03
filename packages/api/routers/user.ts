@@ -82,6 +82,34 @@ export const userRouter = createTRPCRouter({
       })
     }),
 
+  onboardingStatus: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.prisma.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: { onboardingCompleted: true },
+    })
+    return { completed: user?.onboardingCompleted ?? false }
+  }),
+
+  completeOnboarding: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).max(100),
+        businessType: z.string().min(1),
+        marketingGoals: z.array(z.string()).min(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: { id: ctx.session.user.id },
+        data: {
+          name: input.name,
+          businessType: input.businessType,
+          marketingGoals: input.marketingGoals,
+          onboardingCompleted: true,
+        },
+      })
+    }),
+
   ensureOrganization: protectedProcedure.mutation(async ({ ctx }) => {
     const existing = await ctx.prisma.organizationMember.findFirst({
       where: { userId: ctx.session.user.id },
