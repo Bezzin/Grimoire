@@ -27,7 +27,7 @@ export function AccountsStatus() {
           </p>
           <Button
             size="sm"
-            className="group mt-5 gap-2 rounded-lg grimoire-gradient text-white shadow-glow-sm transition-shadow hover:shadow-glow-md"
+            className="group mt-5 gap-2 rounded-lg bg-primary text-primary-foreground shadow-glow-sm transition-shadow hover:shadow-glow-md"
             asChild
           >
             <Link href="/dashboard/accounts">

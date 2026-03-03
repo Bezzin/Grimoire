@@ -212,7 +212,7 @@ export function Sidebar({ user, open, onClose, activeOrgId }: SidebarProps) {
             href="/dashboard"
             className="flex items-center gap-2"
           >
-            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded grimoire-gradient">
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-primary">
               <Sparkles className="h-3 w-3 text-white" />
             </div>
             {!collapsed && (

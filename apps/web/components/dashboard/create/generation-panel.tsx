@@ -142,7 +142,7 @@ export function GenerationPanel({ template, onGenerated, customInputFields }: Ge
             <Button
               onClick={handleGenerate}
               disabled={isPending}
-              className="gap-2 grimoire-gradient text-white shadow-glow-sm"
+              className="gap-2 bg-primary text-primary-foreground shadow-glow-sm"
               size="sm"
             >
               <Sparkles className="h-3.5 w-3.5" />

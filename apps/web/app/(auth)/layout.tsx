@@ -9,7 +9,7 @@ export default function AuthLayout({
   return (
     <div className="flex min-h-screen">
       {/* Left panel — brand + decorative */}
-      <div className="relative hidden flex-col justify-between overflow-hidden grimoire-gradient p-10 lg:flex lg:w-[45%]">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-primary p-10 lg:flex lg:w-[45%]">
         {/* Decorative elements */}
         <div className="pointer-events-none absolute inset-0 dot-grid opacity-10" />
         <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
@@ -49,8 +49,8 @@ export default function AuthLayout({
           href="/"
           className="mb-8 flex items-center gap-2.5 lg:hidden"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg grimoire-gradient shadow-glow-sm">
-            <Sparkles className="h-4.5 w-4.5 text-white" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-glow-sm">
+            <Sparkles className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
           <span className="text-xl font-bold">Grimoire</span>
         </Link>

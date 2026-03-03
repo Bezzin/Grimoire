@@ -104,7 +104,7 @@ export function CustomTemplateWizard({ onComplete, onCancel }: CustomTemplateWiz
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i <= step ? "grimoire-gradient" : "bg-muted/30"
+              i <= step ? "bg-primary" : "bg-muted/30"
             }`}
           />
         ))}
@@ -306,7 +306,7 @@ export function CustomTemplateWizard({ onComplete, onCancel }: CustomTemplateWiz
               (step === 1 && inputFields.length === 0) ||
               (step === 2 && instructions.trim().length === 0)
             }
-            className="gap-2 grimoire-gradient text-white"
+            className="gap-2 bg-primary text-primary-foreground"
           >
             Next
             <ArrowRight className="h-4 w-4" />
@@ -315,7 +315,7 @@ export function CustomTemplateWizard({ onComplete, onCancel }: CustomTemplateWiz
           <Button
             onClick={handleSubmit}
             disabled={createTemplate.isPending}
-            className="gap-2 grimoire-gradient text-white"
+            className="gap-2 bg-primary text-primary-foreground"
           >
             <Check className="h-4 w-4" />
             {createTemplate.isPending ? "Creating..." : "Create Template"}

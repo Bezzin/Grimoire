@@ -4,85 +4,85 @@
 
 @layer base {
   :root {
-    /* Light — warm off-white canvas with indigo accents */
-    --background: 240 20% 98%;
-    --foreground: 232 33% 13%;
-    --card: 0 0% 100%;
-    --card-foreground: 232 33% 13%;
+    /* qrafthive — Light mode */
+    --background: 0 0% 100%;
+    --foreground: 220 13% 11%;
+    --card: 0 0% 98%;
+    --card-foreground: 220 13% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 232 33% 13%;
-    --primary: 245 58% 51%;
+    --popover-foreground: 220 13% 11%;
+    --primary: 20 60% 56%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 14% 94%;
-    --secondary-foreground: 232 33% 13%;
-    --muted: 240 14% 94%;
-    --muted-foreground: 232 10% 47%;
-    --accent: 36 96% 52%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
+    --secondary: 180 18% 39%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 0 0% 93%;
+    --accent-foreground: 220 13% 11%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 12% 91%;
-    --input: 240 12% 91%;
-    --ring: 245 58% 51%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 20 60% 56%;
     --radius: 0.75rem;
-    --chart-1: 245 58% 51%;
-    --chart-2: 36 96% 52%;
-    --chart-3: 167 70% 43%;
-    --chart-4: 340 75% 55%;
-    --chart-5: 200 95% 50%;
+    --chart-1: 20 60% 56%;
+    --chart-2: 180 18% 39%;
+    --chart-3: 25 40% 39%;
+    --chart-4: 180 15% 55%;
+    --chart-5: 30 30% 65%;
 
-    /* Sidebar — subtle indigo tint */
-    --sidebar: 245 25% 97%;
-    --sidebar-foreground: 232 33% 13%;
-    --sidebar-border: 240 12% 91%;
-    --sidebar-accent: 245 58% 51%;
+    /* Sidebar */
+    --sidebar: 0 0% 98%;
+    --sidebar-foreground: 220 13% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-accent: 20 60% 56%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-muted: 232 10% 47%;
+    --sidebar-muted: 220 9% 46%;
 
-    /* Grimoire brand gradient stops */
-    --gradient-start: 245 58% 51%;
-    --gradient-mid: 275 60% 50%;
-    --gradient-end: 310 60% 50%;
+    /* Brand gradient (warm orange → teal) */
+    --gradient-start: 20 60% 56%;
+    --gradient-mid: 15 42% 50%;
+    --gradient-end: 180 18% 39%;
   }
 
   .dark {
-    /* Dark — deep charcoal/slate canvas */
-    --background: 228 25% 8%;
-    --foreground: 226 15% 92%;
-    --card: 228 22% 11%;
-    --card-foreground: 226 15% 92%;
-    --popover: 228 22% 11%;
-    --popover-foreground: 226 15% 92%;
-    --primary: 245 70% 65%;
+    /* qrafthive — Dark mode */
+    --background: 300 4% 7%;
+    --foreground: 0 0% 76%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 76%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 76%;
+    --primary: 22 74% 62%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 228 18% 16%;
-    --secondary-foreground: 226 15% 92%;
-    --muted: 228 18% 16%;
-    --muted-foreground: 226 10% 55%;
-    --accent: 36 96% 58%;
-    --accent-foreground: 228 25% 8%;
-    --destructive: 0 72% 55%;
+    --secondary: 180 17% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 76%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 228 15% 18%;
-    --input: 228 15% 18%;
-    --ring: 245 70% 65%;
-    --chart-1: 245 70% 65%;
-    --chart-2: 36 96% 58%;
-    --chart-3: 167 70% 50%;
-    --chart-4: 340 75% 60%;
-    --chart-5: 200 95% 55%;
+    --border: 0 0% 13%;
+    --input: 0 0% 13%;
+    --ring: 22 74% 62%;
+    --chart-1: 22 74% 62%;
+    --chart-2: 180 17% 45%;
+    --chart-3: 25 30% 50%;
+    --chart-4: 180 15% 58%;
+    --chart-5: 30 30% 70%;
 
-    /* Sidebar — slightly lighter dark panel */
-    --sidebar: 228 22% 10%;
-    --sidebar-foreground: 226 15% 85%;
-    --sidebar-border: 228 15% 18%;
-    --sidebar-accent: 245 70% 65%;
+    /* Sidebar */
+    --sidebar: 300 3% 8%;
+    --sidebar-foreground: 0 0% 76%;
+    --sidebar-border: 0 0% 13%;
+    --sidebar-accent: 22 74% 62%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-muted: 226 10% 50%;
+    --sidebar-muted: 0 0% 45%;
 
-    --gradient-start: 245 70% 65%;
-    --gradient-mid: 275 65% 58%;
-    --gradient-end: 310 65% 55%;
+    --gradient-start: 22 74% 62%;
+    --gradient-mid: 18 50% 55%;
+    --gradient-end: 180 17% 45%;
   }
 }
 
@@ -92,9 +92,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Smooth scrollbar for dark mode */
+  /* Smooth scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -112,7 +113,7 @@
 }
 
 @layer utilities {
-  /* Grimoire brand gradient */
+  /* Grimoire brand gradient (warm orange → teal) */
   .grimoire-gradient {
     background: linear-gradient(
       135deg,

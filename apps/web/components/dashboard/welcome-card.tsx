@@ -22,7 +22,7 @@ const disabledActions = [
 
 export function WelcomeCard({ userName }: WelcomeCardProps) {
   return (
-    <div className="relative overflow-hidden rounded-2xl grimoire-gradient p-[1px]">
+    <div className="relative overflow-hidden rounded-2xl bg-primary p-[1px]">
       <div className="relative rounded-[15px] bg-card px-6 py-8 md:px-8">
         {/* Decorative glow */}
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl" />
@@ -70,7 +70,7 @@ export function WelcomeCard({ userName }: WelcomeCardProps) {
             </TooltipProvider>
             <Button
               size="sm"
-              className="group gap-2 rounded-lg grimoire-gradient text-white shadow-glow-sm transition-shadow hover:shadow-glow-md"
+              className="group gap-2 rounded-lg bg-primary text-primary-foreground shadow-glow-sm transition-shadow hover:shadow-glow-md"
               asChild
             >
               <Link href="/dashboard/accounts">

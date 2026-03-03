@@ -15,8 +15,8 @@ export default function MarketingLayout({
             href="/"
             className="flex items-center gap-2.5"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg grimoire-gradient shadow-glow-sm">
-              <Sparkles className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary shadow-glow-sm">
+              <Sparkles className="h-4 w-4 text-primary-foreground" />
             </div>
             <span className="text-lg font-bold tracking-tight">Grimoire</span>
           </Link>
@@ -30,7 +30,7 @@ export default function MarketingLayout({
             </Link>
             <Link
               href="/signup"
-              className="rounded-lg grimoire-gradient px-4 py-2 text-sm font-semibold text-white shadow-glow-sm transition-shadow hover:shadow-glow-md"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow-sm transition-shadow hover:shadow-glow-md"
             >
               Get Started Free
             </Link>
@@ -42,8 +42,8 @@ export default function MarketingLayout({
         <div className="container mx-auto px-6">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg grimoire-gradient">
-                <Sparkles className="h-3.5 w-3.5 text-white" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
+                <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
               </div>
               <span className="font-semibold">Grimoire</span>
             </div>

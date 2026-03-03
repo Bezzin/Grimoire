@@ -89,7 +89,7 @@ export function BrandWizard({ onComplete, onCancel }: BrandWizardProps) {
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
-              i <= step ? "grimoire-gradient" : "bg-muted/30"
+              i <= step ? "bg-primary" : "bg-muted/30"
             }`}
           />
         ))}
@@ -250,7 +250,7 @@ export function BrandWizard({ onComplete, onCancel }: BrandWizardProps) {
               (step === 0 && name.trim().length === 0) ||
               (step === 1 && toneKeywords.length < 3)
             }
-            className="gap-2 grimoire-gradient text-white shadow-glow-sm"
+            className="gap-2 bg-primary text-primary-foreground shadow-glow-sm"
           >
             Next
             <ArrowRight className="h-4 w-4" />
@@ -259,7 +259,7 @@ export function BrandWizard({ onComplete, onCancel }: BrandWizardProps) {
           <Button
             onClick={handleSubmit}
             disabled={createProfile.isPending}
-            className="gap-2 grimoire-gradient text-white shadow-glow-sm"
+            className="gap-2 bg-primary text-primary-foreground shadow-glow-sm"
           >
             <Check className="h-4 w-4" />
             {createProfile.isPending ? "Creating..." : "Create Profile"}
