@@ -15,8 +15,15 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
-  // Ensure user has an organization (creates one on first login)
+  // Check if user has completed onboarding
   const caller = await api()
+  const { completed } = await caller.user.onboardingStatus()
+
+  if (!completed) {
+    redirect("/onboarding")
+  }
+
+  // Ensure user has an organization (creates one on first login)
   await caller.user.ensureOrganization()
 
   const activeOrgId = await getActiveOrgId()

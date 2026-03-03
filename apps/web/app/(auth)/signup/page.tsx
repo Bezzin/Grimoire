@@ -49,7 +49,7 @@ export default function SignupPage() {
       await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/dashboard",
+        callbackUrl: "/onboarding",
       })
     } catch {
       setError("Something went wrong. Please try again.")
@@ -60,7 +60,7 @@ export default function SignupPage() {
 
   function handleGoogleSignUp() {
     setIsGoogleLoading(true)
-    signIn("google", { callbackUrl: "/dashboard" })
+    signIn("google", { callbackUrl: "/onboarding" })
   }
 
   return (
