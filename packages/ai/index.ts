@@ -24,3 +24,4 @@ export type {
   VideoGenerationJob,
   VideoStatusResult,
 } from "./generation/video"
+export { generateExecutiveSummary } from "./report-summary"
