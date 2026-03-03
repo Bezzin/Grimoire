@@ -47,7 +47,7 @@ export function BrandPageClient() {
         </div>
         <Button
           onClick={() => setShowWizard(true)}
-          className="gap-2 grimoire-gradient text-white shadow-glow-sm hover:shadow-glow-md"
+          className="gap-2 bg-primary text-primary-foreground shadow-glow-sm hover:shadow-glow-md"
         >
           <Plus className="h-4 w-4" />
           New Profile
@@ -76,7 +76,7 @@ export function BrandPageClient() {
           </div>
           <Button
             onClick={() => setShowWizard(true)}
-            className="gap-2 grimoire-gradient text-white shadow-glow-sm"
+            className="gap-2 bg-primary text-primary-foreground shadow-glow-sm"
           >
             <Plus className="h-4 w-4" />
             Create Your First Profile

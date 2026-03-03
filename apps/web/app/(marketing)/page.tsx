@@ -49,21 +49,18 @@ const DIFFERENTIATORS = [
     title: "One Flat Price",
     description:
       "$29-39/month. No credits, no tokens, no surprises. One price for everything.",
-    gradient: "from-primary/20 to-primary/5",
   },
   {
     icon: Workflow,
     title: "End-to-End Workflow",
     description:
       "Research \u2192 Create \u2192 Review \u2192 Schedule \u2192 Publish \u2192 Analyze. All in one tool.",
-    gradient: "from-accent/20 to-accent/5",
   },
   {
     icon: Fingerprint,
     title: "Your Brand Voice",
     description:
       "Deep brand voice training with RAG. Content that sounds like you, not a robot.",
-    gradient: "from-chart-4/20 to-chart-4/5",
   },
 ] as const
 
@@ -132,7 +129,7 @@ function HeroSection() {
       {/* Background effects */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[120px]" />
-        <div className="absolute bottom-0 right-0 h-[400px] w-[500px] translate-x-1/4 rounded-full bg-accent/6 blur-[100px]" />
+        <div className="absolute bottom-0 right-0 h-[400px] w-[500px] translate-x-1/4 rounded-full bg-secondary/6 blur-[100px]" />
         <div className="dot-grid absolute inset-0 opacity-40" />
       </div>
 
@@ -173,7 +170,7 @@ function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="group h-12 gap-2 rounded-xl grimoire-gradient px-8 text-white shadow-glow-md transition-shadow hover:shadow-glow-lg"
+              className="group h-12 gap-2 rounded-xl bg-primary px-8 text-primary-foreground shadow-glow-md transition-shadow hover:shadow-glow-lg"
             >
               <Link href="/signup">
                 Start Free Trial
@@ -219,7 +216,7 @@ function ProblemSection() {
           </p>
         </div>
         <div className="mx-auto grid max-w-5xl gap-4 md:grid-cols-3">
-          {PAIN_POINTS.map((point, i) => (
+          {PAIN_POINTS.map((point) => (
             <Card
               key={point.title}
               className="group border-border/40 bg-card/50 shadow-soft transition-all duration-300 hover:border-destructive/20 hover:shadow-elevated"
@@ -317,7 +314,7 @@ function PricingSection() {
             >
               {plan.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 rounded-full grimoire-gradient px-3 py-1 text-xs font-semibold text-white shadow-glow-sm">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-glow-sm">
                     <Star className="h-3 w-3" />
                     Most Popular
                   </span>
@@ -349,7 +346,7 @@ function PricingSection() {
                   variant={plan.highlighted ? "default" : "outline"}
                   className={
                     plan.highlighted
-                      ? "w-full rounded-lg grimoire-gradient text-white shadow-glow-sm transition-shadow hover:shadow-glow-md"
+                      ? "w-full rounded-lg bg-primary text-primary-foreground shadow-glow-sm transition-shadow hover:shadow-glow-md"
                       : "w-full rounded-lg border-border/50"
                   }
                 >
@@ -391,7 +388,7 @@ function CtaSection() {
             <Button
               asChild
               size="lg"
-              className="group h-12 gap-2 rounded-xl grimoire-gradient px-8 text-white shadow-glow-md transition-shadow hover:shadow-glow-lg"
+              className="group h-12 gap-2 rounded-xl bg-primary px-8 text-primary-foreground shadow-glow-md transition-shadow hover:shadow-glow-lg"
             >
               <Link href="/signup">
                 Get Started Free

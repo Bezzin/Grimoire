@@ -94,7 +94,7 @@ export function PlatformCard({ platform, account, onDisconnect }: PlatformCardPr
           ) : (
             <Button
               size="sm"
-              className="flex-1 text-xs grimoire-gradient text-white"
+              className="flex-1 text-xs bg-primary text-primary-foreground"
               onClick={handleConnect}
             >
               Connect

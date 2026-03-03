@@ -54,7 +54,7 @@ export function GettingStarted() {
         </div>
         {/* Progress bar */}
         <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-1/4 rounded-full grimoire-gradient transition-all duration-500" />
+          <div className="h-full w-1/4 rounded-full bg-primary transition-all duration-500" />
         </div>
       </CardHeader>
       <CardContent>
