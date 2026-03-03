@@ -7,6 +7,7 @@ import { brandAssetRouter } from "./routers/brandAsset"
 import { contentRouter } from "./routers/content"
 import { customTemplateRouter } from "./routers/customTemplate"
 import { invitationRouter } from "./routers/invitation"
+import { reportRouter } from "./routers/report"
 import { scheduledPostRouter } from "./routers/scheduledPost"
 import { socialAccountRouter } from "./routers/socialAccount"
 
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   content: contentRouter,
   customTemplate: customTemplateRouter,
   invitation: invitationRouter,
+  report: reportRouter,
   scheduledPost: scheduledPostRouter,
   socialAccount: socialAccountRouter,
 })

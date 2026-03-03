@@ -68,15 +68,17 @@ model Organization {
   aiGenerationsResetAt DateTime  @default(now())
 
   // Relations
-  members         OrganizationMember[]
-  invitations     Invitation[]
-  socialAccounts  SocialAccount[]
-  brandProfiles   BrandProfile[]
-  contentItems    ContentItem[]
-  scheduledPosts  ScheduledPost[]
-  analyticsEvents AnalyticsEvent[]
-  brandAssets     BrandAsset[]
-  customTemplates CustomTemplate[]
+  members           OrganizationMember[]
+  invitations       Invitation[]
+  socialAccounts    SocialAccount[]
+  brandProfiles     BrandProfile[]
+  contentItems      ContentItem[]
+  scheduledPosts    ScheduledPost[]
+  analyticsEvents   AnalyticsEvent[]
+  brandAssets       BrandAsset[]
+  customTemplates   CustomTemplate[]
+  reports           Report[]
+  reportTemplates   ReportTemplate[]
 }
 
 model OrganizationMember {
@@ -349,4 +351,81 @@ model AnalyticsEvent {
 
   @@index([organizationId, platform, recordedAt])
   @@index([socialAccountId, metricType, recordedAt])
+}
+
+// ============ REPORTS ============
+
+model Report {
+  id                String       @id @default(cuid())
+  title             String
+  status            ReportStatus @default(PENDING)
+  dateRangeStart    DateTime
+  dateRangeEnd      DateTime
+  comparePeriod     ComparePeriod?
+  platforms         String[]
+  overviewData      Json?
+  platformData      Json?
+  topPostsData      Json?
+  executiveSummary  String?      @db.Text
+  screenshotUrls    String[]
+  screenshotNotes   Json?
+  errorMessage      String?
+  bullJobId         String?
+  templateId        String?
+  organizationId    String
+  createdById       String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  template     ReportTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  shares ReportShare[]
+
+  @@index([organizationId, createdAt])
+  @@index([status])
+}
+
+model ReportTemplate {
+  id             String   @id @default(cuid())
+  name           String
+  platforms      String[]
+  comparePeriod  ComparePeriod?
+  includeScreenshots Boolean @default(false)
+  organizationId String
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  reports      Report[]
+
+  @@index([organizationId])
+}
+
+model ReportShare {
+  id        String   @id @default(cuid())
+  token     String   @unique @default(cuid())
+  reportId  String
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([reportId])
+}
+
+enum ReportStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+enum ComparePeriod {
+  PREVIOUS_PERIOD
+  PREVIOUS_WEEK
+  PREVIOUS_MONTH
+  PREVIOUS_YEAR
 }
